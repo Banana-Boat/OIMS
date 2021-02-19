@@ -1,0 +1,8 @@
+File from: [C:/Users/93749/Desktop/test/人艺法团委章.png]
+
+File to: [./tmp/img/front_compress/人艺法团委章.png]
+
+Compression algorithm: [pngquant]
+
+Description: Error: Command failed: F:\Terry\ElectronWork\oims\node_modules\pngquant-bin\vendor\pngquant.exe --quality=20-50 -o ./tmp/img/front_compress/人艺法团委章.png C:/Users/93749/Desktop/test/人艺法团委章.png
+  error: cannot open C:/Users\93749\Desktop\test\人艺法团委章.png for reading

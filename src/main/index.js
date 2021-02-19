@@ -44,10 +44,8 @@ app.on('ready', () => {
     fs.mkdirSync('./tmp', (err) => { throw err })
     fs.mkdirSync('./tmp/img', (err) => { throw err })
     fs.mkdirSync('./tmp/xml', (err) => { throw err })
-    fs.mkdirSync('./tmp/img/front_contrast', (err) => { throw err })
-    fs.mkdirSync('./tmp/img/front_cut', (err) => { throw err })
-    fs.mkdirSync('./tmp/img/side_contrast', (err) => { throw err })
-    fs.mkdirSync('./tmp/img/side_cut', (err) => { throw err })
+    fs.mkdirSync('./tmp/img/front_compress', (err) => { throw err })
+    fs.mkdirSync('./tmp/img/side_compress', (err) => { throw err })
   } catch (error) {
     console.log('临时文件夹创建失败')
   }

@@ -32,12 +32,14 @@
       </el-card>
     </div>
     <div slot="footer">
-      <el-button type="primary" @click="Measure" style="margin-right:2%">量测</el-button>
+      <el-button type="primary" @click="Measure" :loading="isCompressing" style="margin-right:2%">量测</el-button>
     </div>
   </el-dialog>
 </template>
 
 <script>
+const compressImages = require('compress-images')
+
 export default {
   props: ['isShowDialog'],
   data () {
@@ -45,7 +47,8 @@ export default {
       frontListData: [],
       sideListData: [],
       isFrontAllSelected: false,
-      isSideAllSelected: false
+      isSideAllSelected: false,
+      isCompressing: false
     }
   },
   methods: {
@@ -76,7 +79,6 @@ export default {
       for (let key in resList) {
         tempListData.push({
           'filename': key,
-          'path': resList[key].path,
           'isMeasured': resList[key].isMeasured
         })
       }
@@ -93,21 +95,50 @@ export default {
         })
       }
     },
-    Measure () {
+    Compress (flag) {
+      return new Promise(resolve => {
+        let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
+        let dirPath = params.dirPath.replace(/\\/g, '/') + '/*.{jpg,JPG,jpeg,JPEG}'
+        let compressDirPath = params.compressDirPath
+        compressImages(dirPath, compressDirPath,
+          {compress_force: false, statistic: true, autoupdate: true}, false,
+          {jpg: {engine: 'mozjpeg', command: ['-quality', '15']}},
+          {png: {engine: false, command: false}},
+          {svg: {engine: false, command: false}},
+          {gif: {engine: false, command: false}},
+          (err, completed, statistic) => {
+            if (completed) {
+              console.log(err)
+              console.log(completed)
+              resolve(completed)
+            }
+          }
+        )
+      })
+    },
+    async Measure () {
       // 当前只量测侧面图！！！！！
+      this.isCompressing = true
+      let isSideCompressed = await this.Compress(2)
+      if (isSideCompressed) {
+        this.$store.commit('ChangeMeasureState', {isMeasuring: true})
+        let selectedArr = []
+        let compressDirPath = this.$store.state.File.params2.compressDirPath
+        this.$refs.sideTable.selection.forEach(item => {
+          selectedArr.push(compressDirPath + item.filename)
+        })
+        this.$emit('StartMeasure', selectedArr)
+        this.$notify.info({
+          title: '消息',
+          message: '正在量测中，请保持网络通畅。预计所需时间为5分钟',
+          duration: 3000,
+          position: 'bottom-left'
+        })
+      } else {
+        this.$message.error('图片预处理出错，请稍后重试')
+      }
+      this.isCompressing = false
       this.Close()
-      this.$notify.info({
-        title: '消息',
-        message: '正在量测中，请保持网络通畅。预计所需时间为5分钟',
-        duration: 3000,
-        position: 'bottom-left'
-      })
-      this.$store.commit('ChangeMeasureState', {isMeasuring: true})
-      let selectedArr = []
-      this.$refs.sideTable.selection.forEach(item => {
-        selectedArr.push(item.path)
-      })
-      this.$emit('StartMeasure', selectedArr)
     },
     Close () {
       this.$emit('CloseDialog')

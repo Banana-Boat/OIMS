@@ -140,7 +140,7 @@ export default {
         let data = fs.readFileSync(item)
         data = Buffer.from(data).toString('base64')
         jsonData.push({
-          name: item.split('\\').pop(),
+          name: item.split('/').pop(),
           data: data
         })
       })

@@ -4,8 +4,7 @@ const state = {
   // 正面图的相关变量
   params1: {
     'dirPath': '', // 文件夹路径
-    'contrastDirPath': './tmp/img/front_contrast/', // 对比度调整后的保存路径
-    'cutDirPath': './tmp/img/front_cut/', // 裁剪后保存路径
+    'compressDirPath': './tmp/img/front_compress/', // 对比度调整后的保存路径
     'fileList': {}, // 文件列表（用于维护文件列表栏）
     'resList': {}, // 量测结果列表（用于维护图片的量测结果，包含每一项）
     'curFilename': '' // 当前打开的文件文件名
@@ -13,8 +12,7 @@ const state = {
   // 侧面图的相关变量
   params2: {
     'dirPath': '',
-    'contrastDirPath': './tmp/img/side_contrast/',
-    'cutDirPath': './tmp/img/side_cut/',
+    'compressDirPath': './tmp/img/side_compress/',
     'fileList': {},
     'resList': {},
     'curFilename': ''
@@ -28,7 +26,7 @@ const mutations = {
   // 修改图片目录的路径。flag=1：正面图，flag=2：侧面图
   ChangeDirPath (state, payload) {
     var params = payload.flag === 1 ? state.params1 : state.params2
-    params.dirPath = payload.path + '\\'
+    params.dirPath = payload.path
   },
   // 修改整个文件列表
   ChangeFileList (state, payload) {
@@ -77,7 +75,7 @@ const actions = {
         return console.error(err)
       }
       let tempFileList = {}
-      let fileType = ['jpg', 'jpeg', 'png', 'bmp']
+      let fileType = ['jpg', 'jpeg']
       let tempResList = {}
       files.forEach((file) => {
         if (fileType.includes(file.split('.').pop().toLowerCase())) {

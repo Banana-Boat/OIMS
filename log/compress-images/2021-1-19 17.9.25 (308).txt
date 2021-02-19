@@ -1,0 +1,11 @@
+File from: [C:/Users/93749/Desktop/test/000008.jpg]
+
+File to: [./tmp/img/front_compress/000008.jpg]
+
+Compression algorithm: [guetzli]
+
+Description: Error: Command failed: F:\Terry\ElectronWork\oims\node_modules\guetzli\vendor\guetzli.exe --quality 60 C:/Users/93749/Desktop/test/000008.jpg ./tmp/img/front_compress/000008.jpg
+Guetzli should be called with quality >= 84, otherwise the
+output will have noticeable artifacts. If you want to
+proceed anyway, please edit the source code.
+Guetzli processing failed

@@ -1,0 +1,7 @@
+File from: [C:/Users/93749/Desktop/test/000000.jpg]
+
+File to: [./tmp/img/front_compress/000000.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn F:\Terry\ElectronWork\oims\node_modules\mozjpeg\vendor\cjpeg.exe ENOENT
