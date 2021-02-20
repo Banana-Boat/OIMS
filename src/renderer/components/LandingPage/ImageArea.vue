@@ -37,7 +37,7 @@ export default {
     img1Name (nv, ov) {
       if (nv !== '') {
         let imgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params1.resList[nv]))
-        this.ShowImage(canvas1, imgInfo)
+        this.ShowImage(1, canvas1, imgInfo)
       } else {
         canvas1.clear()
       }
@@ -45,7 +45,7 @@ export default {
     img2Name (nv, ov) {
       if (nv !== '') {
         let imgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList[nv]))
-        this.ShowImage(canvas2, imgInfo)
+        this.ShowImage(2, canvas2, imgInfo)
       } else {
         canvas2.clear()
       }
@@ -58,7 +58,7 @@ export default {
       })
     },
     // 将图片设置为背景，并调整图片与画布大小。若有量测数据，则渲染至画布上
-    ShowImage (canvas, imgInfo) {
+    ShowImage (flag, canvas, imgInfo) {
       let that = this
       canvas.clear() // 清空画布
       let img = new Image()
@@ -68,12 +68,14 @@ export default {
         let scale = canvas.height / img.height
         let originalHeight = img.height
         canvas.setWidth(canvas.height / ratio)
-        canvas.setBackgroundImage(imgInfo.path, canvas.renderAll.bind(canvas), {
-          top: 0,
-          left: 0,
-          scaleX: scale,
-          scaleY: scale
+        fabric.Image.fromURL(imgInfo.path, function (img, isError) {
+          img.set({top: 0, left: 0, scaleX: scale, scaleY: scale})
+          canvas.setBackgroundImage(img, () => {
+            canvas.renderAll()
+            that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
+          })
         })
+        // 解析数据并绘制图线
         if (imgInfo.isMeasured) {
           let parseRes = {}
           let filename = imgInfo.path.split('\\').pop()
@@ -89,7 +91,6 @@ export default {
           } else {
             parseRes = JSON.parse(JSON.stringify(that.$store.state.File.params2.resList[filename].parseRes))
           }
-          // 绘制图线
           let lineAttr = {
             fill: 'blue',
             stroke: 'blue',
@@ -151,8 +152,9 @@ export default {
             p4.set({'left': parseRes.p4[0] - pRadius, 'top': parseRes.p4[1] - pRadius})
           }
           canvas.add(p01Line, p34Line, p25Line, p0, p1, p2, p3, p4, p5)
-          canvas.renderAll.bind(canvas)
-
+          canvas.renderAll()
+          // 更新全局变量
+          that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
           // 画布监听事件
           canvas.on('object:moving', (e) => {
             if (e.target) {
@@ -202,18 +204,19 @@ export default {
                     tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
                     break
                 }
-                tempResList[curFilename].isChanged = true
                 that.$store.commit('ChangeResList', {
                   flag: 2,
                   resList: tempResList
                 })
-                console.log(this.$store.state.File.params2.resList)
+                // 更新全局变量
+                that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
               }
             }
           })
         }
       }
     },
+    // 解析点坐标
     ParseResult (measureRes, scale, originalHeight) {
       let parseRes = {}
       let sXmin = this.RestoreX(measureRes.sacrum.xmin, scale)

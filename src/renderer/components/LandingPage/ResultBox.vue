@@ -28,7 +28,11 @@ export default {
       let isParsed = this.$store.state.File.params2.resList[curFilename].isParsed
       if (isParsed) {
         let parseRes = this.$store.state.File.params2.resList[curFilename].parseRes
-        this.result = this.CalResult(parseRes)
+        let result = this.CalResult(parseRes)
+        this.result = result
+        this.$store.commit('ChangeCurEntireRes', {
+          curEntireRes: result
+        })
         return true
       } else {
         this.result = {
@@ -36,6 +40,10 @@ export default {
           'pt': '',
           'pi': ''
         }
+        // 待改整合（正侧）
+        this.$store.commit('ChangeCurEntireRes', {
+          curEntireRes: null
+        })
         return false
       }
     }

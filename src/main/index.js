@@ -43,7 +43,6 @@ app.on('ready', () => {
   try {
     fs.mkdirSync('./tmp', (err) => { throw err })
     fs.mkdirSync('./tmp/img', (err) => { throw err })
-    fs.mkdirSync('./tmp/xml', (err) => { throw err })
     fs.mkdirSync('./tmp/img/front_compress', (err) => { throw err })
     fs.mkdirSync('./tmp/img/side_compress', (err) => { throw err })
   } catch (error) {

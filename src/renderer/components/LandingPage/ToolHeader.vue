@@ -21,7 +21,7 @@
         <i class="fa fa-play"></i>
         <span>量测</span>
       </div>
-      <div class="tool-btn">
+      <div class="tool-btn" @click="Print">
         <i class="fa fa-print"></i>
         <span>打印</span>
       </div>
@@ -41,7 +41,7 @@
           <el-menu-item index="1-1" @click="SelectFrontDir">选择正面图文件夹</el-menu-item>
           <el-menu-item index="1-2" @click="SelectSideDir">选择侧面图文件夹</el-menu-item>
           <el-divider></el-divider>
-          <el-menu-item index="1-3">打印（导出为PDF）</el-menu-item>
+          <el-menu-item index="1-3" @click="Print">打印（导出为PDF）</el-menu-item>
           <el-menu-item index="1-4">使用说明</el-menu-item>
         </el-submenu>
         <el-submenu index="2">
@@ -75,8 +75,8 @@
 </template>
 
 <script>
-/* eslint-disable */
 import MeasureDialog from './MeasureDialog'
+import {jsPDF} from 'jspdf'
 const {dialog} = require('electron').remote
 const fs = require('fs')
 const parser = require('fast-xml-parser')
@@ -225,6 +225,50 @@ export default {
         clearInterval(that.measureInterval)
         this.$store.commit('ChangeMeasureState', {isMeasuring: false})
       })
+    },
+    Print () {
+      try {
+        let filename1 = this.$store.state.File.params1.curFilename.split('.')[0]
+        let filename2 = this.$store.state.File.params2.curFilename.split('.')[0]
+        let canvasData1 = this.$store.state.File.params1.canvasData
+        let canvasData2 = this.$store.state.File.params2.canvasData
+        if (canvasData1 !== null && canvasData2 !== null) {
+          let pdf = new jsPDF()
+          // 待改，尽量写成相对定位
+          pdf.addImage(canvasData1, 'JPEG', 20, 15, 249 / 4, 500 / 4)
+          pdf.text(filename1, 40, 10)
+          pdf.addImage(canvasData2, 'JPEG', 120, 15, 249 / 4, 500 / 4)
+          pdf.text(filename2, 140, 10)
+          if (this.$store.state.File.curEntireRes !== null) {
+            pdf.text('Health Report:', 100, 147)
+            let res = this.$store.state.File.curEntireRes
+            pdf.text('ss:', 100, 157)
+            pdf.text(110, 157, res.ss)
+            pdf.text('pt:', 100, 167)
+            pdf.text(110, 167, res.pt)
+            pdf.text('pi:', 100, 177)
+            pdf.text(110, 177, res.pi)
+          } else {
+            pdf.text('There is No Health Data.', 100, 147)
+          }
+          let result = dialog.showOpenDialog({
+            title: '选择保存路径',
+            buttonLabel: '选择路径',
+            properties: ['openDirectory', 'showHiddenFiles']
+          })
+          if (result) {
+            let path = result[0] + '/' + filename1 + '_' + filename2 + '.pdf'
+            pdf.save(path, {returnPromise: true}).then(this.$message.success('图片结果PDF文件已保存在指定位置'))
+          } else {
+            throw new Error(1)
+          }
+        } else {
+          throw new Error(1)
+        }
+      } catch (err) {
+        console.log(err)
+        this.$message.error('图片打印出错，请稍后重试')
+      }
     }
   }
 }

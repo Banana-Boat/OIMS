@@ -7,7 +7,8 @@ const state = {
     'compressDirPath': './tmp/img/front_compress/', // 对比度调整后的保存路径
     'fileList': {}, // 文件列表（用于维护文件列表栏）
     'resList': {}, // 量测结果列表（用于维护图片的量测结果，包含每一项）
-    'curFilename': '' // 当前打开的文件文件名
+    'curFilename': '', // 当前打开的文件文件名
+    'canvasData': null // 画布
   },
   // 侧面图的相关变量
   params2: {
@@ -15,11 +16,12 @@ const state = {
     'compressDirPath': './tmp/img/side_compress/',
     'fileList': {},
     'resList': {},
-    'curFilename': ''
+    'curFilename': '',
+    'canvasData': null
   },
   selectedImgBox: 1, // 当前选中的图片框
-  resultPath: './tmp/xml/result.xml', // 量测结果文件路径
-  isMeasuring: false // 是否在量测中
+  isMeasuring: false, // 是否在量测中
+  curEntireRes: null // 当前文件整体量测结果（正+侧）
 }
 
 const mutations = {
@@ -42,6 +44,15 @@ const mutations = {
   ChangeCurFilename (state, payload) {
     var params = payload.flag === 1 ? state.params1 : state.params2
     params.curFilename = payload.curFilename
+  },
+  // 修改画布内容（base64）
+  ChangeCanvasData (state, payload) {
+    var params = payload.flag === 1 ? state.params1 : state.params2
+    params.canvasData = payload.canvasData
+  },
+  // 修改当前正侧图的综合健康数据
+  ChangeCurEntireRes (state, payload) {
+    state.curEntireRes = payload.curEntireRes
   },
   // 删除文件
   DeleteFile (state, payload) {
@@ -86,9 +97,8 @@ const actions = {
             'path': payload.path + '\\' + file,
             'isMeasured': false,
             'isParsed': false,
-            'isChanged': false,
-            'measureRes': {},
-            'parseRes': {}
+            'measureRes': {}, // 量测结果
+            'parseRes': {} // 解析结果（点集、参数）
           }
         }
       })
