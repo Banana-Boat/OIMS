@@ -17,7 +17,7 @@
           <span>侧面</span>
         </div>
       </el-tooltip>
-      <div class="tool-btn" @click="Measure">
+      <div class="tool-btn" @click="isShowDialog = true">
         <i class="fa fa-play"></i>
         <span>量测</span>
       </div>
@@ -75,6 +75,7 @@
 </template>
 
 <script>
+/* eslint-disable */
 import MeasureDialog from './MeasureDialog'
 const {dialog} = require('electron').remote
 const fs = require('fs')
@@ -88,7 +89,8 @@ export default {
   data () {
     return {
       isShowDrawer: false,
-      isShowDialog: false
+      isShowDialog: false,
+      measureInterval: null
     }
   },
   computed: {
@@ -135,6 +137,7 @@ export default {
       this.isShowDialog = false
     },
     StartMeasure (seletedArr) {
+      let that = this
       let jsonData = []
       seletedArr.forEach(item => {
         let data = fs.readFileSync(item)
@@ -144,52 +147,83 @@ export default {
           data: data
         })
       })
-      console.log(jsonData)
       axios({
         method: 'post',
-        url: '/',
+        url: 'http://api.zerokirin.online/oims/image',
+        headers: {
+          'Content-Type': 'application/json',
+          'sign': 'spppk'
+        },
         data: jsonData
       }).then(res => {
-        console.log(res.data)
-        // 开启计时器！！！！
-      }).catch(err => {
-        console.log(err)
+        if (res.data.error === 0) {
+          // url参数id待改
+          let totalTime = 0
+          that.measureInterval = setInterval(() => {
+            totalTime += 3
+            axios({
+              method: 'get',
+              url: 'http://api.zerokirin.online/oims/xml?id=123',
+              headers: {'sign': 'spppk'},
+              responseType: 'json'
+            }).then(res => {
+              if (res.data.error === 0) {
+                that.WriteToResultList(2, window.atob(res.data.data))
+                // that.WriteToResultList(1, window.atob(res.data.data)) // 正面图待完善
+                clearInterval(that.measureInterval)
+                this.$store.commit('ChangeMeasureState', {isMeasuring: false})
+                this.$notify.success({
+                  title: '成功',
+                  message: '量测已完成，总耗时' + Math.ceil(totalTime / 60) + '分钟',
+                  duration: 3500,
+                  position: 'bottom-left'
+                })
+              } else {
+                throw new Error(1)
+              }
+            }).catch((err) => {
+              console.log(err)
+              this.$message.error('量测出错，请稍后重试')
+              clearInterval(that.measureInterval)
+            })
+          }, 3000)
+        } else {
+          throw new Error(1)
+        }
+      }).catch(() => {
+        this.$message.error('量测出错，请稍后重试')
+        clearInterval(that.measureInterval)
+      })
+    },
+    WriteToResultList (flag, data) {
+      let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
+      let tempResList = JSON.parse(JSON.stringify(params.resList))
+      let imgList = parser.parse(data)['image-list']['image']
+      if (!Array.isArray(imgList)) {
+        imgList = [imgList]
+      }
+      imgList.forEach(item => {
+        tempResList[item.name]['isMeasured'] = true
+        tempResList[item.name]['measureRes'] = {
+          'sacrum': item.sacrum,
+          'femoralhead1': item.femoralhead1,
+          'femoralhead2': item.femoralhead2
+        }
+      })
+      this.$store.commit('ChangeResList', {
+        flag: flag,
+        resList: tempResList
       })
     },
     CancelMeasure () {
+      let that = this
       this.$confirm('此操作将终止量测，是否确定终止?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        clearInterval(that.measureInterval)
         this.$store.commit('ChangeMeasureState', {isMeasuring: false})
-      })
-    },
-    Measure () {
-      this.isShowDialog = true
-      // （将图片文件传送至后端，量测后，将结果保存至本地）
-      // 当前仅侧面图！！！
-      // 以下为解析文件步骤（仅将原始数据存入全局，并设置isMeasured为true）
-      let that = this
-      fs.readFile(that.$store.state.File.resultPath, (err, data) => {
-        if (err) {
-          return console.log(err)
-        }
-        let tempResList = JSON.parse(JSON.stringify(that.$store.state.File.params2.resList))
-        console.log(tempResList)
-        let imgList = parser.parse(data.toString())['image-list']['image']
-        imgList.forEach(item => {
-          tempResList[item.name]['isMeasured'] = true
-          tempResList[item.name]['measureRes'] = {
-            'sacrum': item.sacrum,
-            'femoralhead1': item.femoralhead1,
-            'femoralhead2': item.femoralhead2
-          }
-        })
-        that.$store.commit('ChangeResList', {
-          flag: 2,
-          resList: tempResList
-        })
       })
     }
   }

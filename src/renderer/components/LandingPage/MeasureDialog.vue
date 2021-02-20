@@ -130,8 +130,8 @@ export default {
         this.$emit('StartMeasure', selectedArr)
         this.$notify.info({
           title: '消息',
-          message: '正在量测中，请保持网络通畅。预计所需时间为5分钟',
-          duration: 3000,
+          message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
+          duration: 3500,
           position: 'bottom-left'
         })
       } else {
