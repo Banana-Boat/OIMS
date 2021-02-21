@@ -1,6 +1,6 @@
 # OIMS
 
-> 一款基于Electron-vue以及ElementUI开发的医学骨科影像识别系统
+> AI骨尺  一款基于Electron-vue以及ElementUI开发的医学骨科影像识别系统
 
 #### 项目配置步骤
 
