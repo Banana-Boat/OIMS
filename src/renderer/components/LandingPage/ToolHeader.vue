@@ -49,10 +49,7 @@
             <i class="fa fa-desktop"></i>
             <span>显示</span>
           </div>
-          <el-menu-item index="2-1">单栏</el-menu-item>
-          <el-menu-item index="2-2">双栏</el-menu-item>
-          <el-divider></el-divider>
-          <el-menu-item index="2-3">全屏</el-menu-item>
+          <el-menu-item index="2-1">全屏</el-menu-item>
         </el-submenu>
         <el-submenu index="3">
           <div class="drawer-title-box" slot="title">
@@ -168,8 +165,15 @@ export default {
               responseType: 'json'
             }).then(res => {
               if (res.data.error === 0) {
-                that.WriteToResultList(2, window.atob(res.data.data))
-                // that.WriteToResultList(1, window.atob(res.data.data)) // 正面图待完善
+                let data = window.atob(res.data.data)
+                let imgList = parser.parse(data)['image-list']['image']
+                if (!Array.isArray(imgList)) {
+                  imgList = [imgList]
+                }
+                that.WriteToResultList(2, imgList)
+                // that.WriteToResultList(1, imgList) // 正面图待完善
+                that.WriteToFileList(1, imgList)
+                that.WriteToFileList(2, imgList)
                 clearInterval(that.measureInterval)
                 this.$store.commit('ChangeMeasureState', {isMeasuring: false})
                 this.$notify.success({
@@ -195,24 +199,35 @@ export default {
         clearInterval(that.measureInterval)
       })
     },
-    WriteToResultList (flag, data) {
+    WriteToResultList (flag, imgList) {
       let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
       let tempResList = JSON.parse(JSON.stringify(params.resList))
-      let imgList = parser.parse(data)['image-list']['image']
-      if (!Array.isArray(imgList)) {
-        imgList = [imgList]
-      }
       imgList.forEach(item => {
-        tempResList[item.name]['isMeasured'] = true
-        tempResList[item.name]['measureRes'] = {
-          'sacrum': item.sacrum,
-          'femoralhead1': item.femoralhead1,
-          'femoralhead2': item.femoralhead2
+        if (tempResList.hasOwnProperty(item.name)) {
+          tempResList[item.name]['isMeasured'] = true
+          tempResList[item.name]['measureRes'] = {
+            'sacrum': item.sacrum,
+            'femoralhead1': item.femoralhead1,
+            'femoralhead2': item.femoralhead2
+          }
         }
       })
       this.$store.commit('ChangeResList', {
         flag: flag,
         resList: tempResList
+      })
+    },
+    WriteToFileList (flag, imgList) {
+      let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
+      let tempFileList = JSON.parse(JSON.stringify(params.fileList))
+      imgList.forEach(item => {
+        if (tempFileList.hasOwnProperty(item.name)) {
+          tempFileList[item.name]['isMeasured'] = true
+        }
+      })
+      this.$store.commit('ChangeFileList', {
+        flag: flag,
+        fileList: tempFileList
       })
     },
     CancelMeasure () {
@@ -259,8 +274,6 @@ export default {
           if (result) {
             let path = result[0] + '/' + filename1 + '_' + filename2 + '.pdf'
             pdf.save(path, {returnPromise: true}).then(this.$message.success('图片结果PDF文件已保存在指定位置'))
-          } else {
-            throw new Error(1)
           }
         } else {
           throw new Error(1)

@@ -10,16 +10,16 @@
                 style="cursor: pointer;" tooltip-effect="light"
                 :row-style="{height: '20px'}" :cell-style="{padding: '5px'}"
                 :highlight-current-row="true">
-        <el-table-column min-width="65" :show-overflow-tooltip="true">
+        <el-table-column min-width="70" :show-overflow-tooltip="true">
           <template slot-scope="scope">
             <el-tooltip :content="scope.row.path" placement="top-start" :open-delay=1000 effect="light">
               <span>{{ scope.row.filename }}</span>
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column prop="oper" min-width="35" align="right" fixed="right">
+        <el-table-column prop="oper" min-width="30" align="right" fixed="right">
           <template slot-scope="scope">
-            <i class="fa fa-close file-close-btn" @click.stop="DeleteFrontFile(scope.row.filename)"></i>
+            <i class="fa fa-check measured-icon" v-if="scope.row.isMeasured"></i>
           </template>
         </el-table-column>
       </el-table>
@@ -43,7 +43,7 @@
         </el-table-column>
         <el-table-column min-width="35" align="right" fixed="right">
           <template slot-scope="scope">
-            <i class="fa fa-close file-close-btn" @click.stop="DeleteSideFile(scope.row.filename)"></i>
+            <i class="fa fa-check measured-icon" v-if="scope.row.isMeasured"></i>
           </template>
         </el-table-column>
       </el-table>
@@ -66,7 +66,8 @@ export default {
       for (let key in fileList) {
         listData.push({
           'filename': key,
-          'path': fileList[key].path
+          'path': fileList[key].path,
+          'isMeasured': fileList[key].isMeasured
         })
       }
       this.$nextTick(() => { // 设置表格中当前选中行
@@ -82,7 +83,8 @@ export default {
       for (let key in fileList) {
         listData.push({
           'filename': key,
-          'path': fileList[key].path
+          'path': fileList[key].path,
+          'isMeasured': fileList[key].isMeasured
         })
       }
       this.$nextTick(() => {
@@ -104,18 +106,6 @@ export default {
       this.$store.commit('ChangeCurFilename', {
         flag: 2,
         curFilename: row.filename
-      })
-    },
-    DeleteFrontFile (filename) {
-      this.$store.commit('DeleteFile', {
-        flag: 1,
-        filename: filename
-      })
-    },
-    DeleteSideFile (filename) {
-      this.$store.commit('DeleteFile', {
-        flag: 2,
-        filename: filename
       })
     },
     RefreshFrontFile () {
@@ -189,12 +179,8 @@ export default {
     background-color: #c4c4c4;
     border-radius: 3px;
   }
-  .file-close-btn{
+  .measured-icon{
     zoom: 1.4;
-    cursor: pointer;
-    color: rgb(255, 79, 79);
-  }
-  .file-close-btn:hover{
-    color:  rgb(255, 122, 122);
+    color: rgb(59, 196, 81);
   }
 </style>

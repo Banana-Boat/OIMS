@@ -54,18 +54,6 @@ const mutations = {
   ChangeCurEntireRes (state, payload) {
     state.curEntireRes = payload.curEntireRes
   },
-  // 删除文件
-  DeleteFile (state, payload) {
-    var params = payload.flag === 1 ? state.params1 : state.params2
-    var temp = JSON.parse(JSON.stringify(params.fileList))
-    delete temp[payload.filename]
-    params.fileList = temp
-    if (Object.keys(temp).length === 0) {
-      params.curFilename = ''
-    } else {
-      params.curFilename = Object.keys(temp)[0]
-    }
-  },
   // 切换选中的图片框
   ChangeSelectedImgBox (state, payload) {
     if (state.selectedImgBox !== payload.flag) {
@@ -91,7 +79,8 @@ const actions = {
       files.forEach((file) => {
         if (fileType.includes(file.split('.').pop().toLowerCase())) {
           tempFileList[file] = {
-            'path': payload.path + '\\' + file
+            'path': payload.path + '\\' + file,
+            'isMeasured': false
           }
           tempResList[file] = {
             'path': payload.path + '\\' + file,
