@@ -1,0 +1,61 @@
+File from: [C:/Users/93749/Desktop/test_img/side/000179.jpg]
+
+File to: [./tmp/img/side_compress/000179.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENTFile from: [C:/Users/93749/Desktop/test_img/side/000184.jpg]
+
+File to: [./tmp/img/side_compress/000184.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENTFile from: [C:/Users/93749/Desktop/test_img/side/000198.jpg]
+
+File to: [./tmp/img/side_compress/000198.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENTFile from: [C:/Users/93749/Desktop/test_img/side/000205.jpg]
+
+File to: [./tmp/img/side_compress/000205.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENTFile from: [C:/Users/93749/Desktop/test_img/side/000196.jpg]
+
+File to: [./tmp/img/side_compress/000196.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENTFile from: [C:/Users/93749/Desktop/test_img/side/000182.jpg]
+
+File to: [./tmp/img/side_compress/000182.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENTFile from: [C:/Users/93749/Desktop/test_img/side/000212.jpg]
+
+File to: [./tmp/img/side_compress/000212.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENTFile from: [C:/Users/93749/Desktop/test_img/side/000223.jpg]
+
+File to: [./tmp/img/side_compress/000223.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENTFile from: [C:/Users/93749/Desktop/test_img/side/000219.jpg]
+
+File to: [./tmp/img/side_compress/000219.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENTFile from: [C:/Users/93749/Desktop/test_img/side/000181.jpg]
+
+File to: [./tmp/img/side_compress/000181.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENT

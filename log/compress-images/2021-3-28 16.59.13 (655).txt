@@ -1,0 +1,13 @@
+File from: [C:/Users/93749/Desktop/test_img/side/000175.jpg]
+
+File to: [./tmp/img/side_compress/000175.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENTFile from: [C:/Users/93749/Desktop/test_img/side/000178.jpg]
+
+File to: [./tmp/img/side_compress/000178.jpg]
+
+Compression algorithm: [mozjpeg]
+
+Description: Error: spawn C:\Users\93749\Desktop\OIMS\node_modules\mozjpeg\vendor\cjpeg.exe ENOENT

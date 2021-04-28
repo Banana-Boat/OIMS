@@ -32,13 +32,16 @@
       </el-card>
     </div>
     <div slot="footer">
-      <el-button type="primary" @click="Measure" :loading="isCompressing" style="margin-right:2%">量测</el-button>
+      <el-button type="primary" @click="Measure" :loading="isPreprocessing" style="margin-right:2%">量测</el-button>
     </div>
   </el-dialog>
 </template>
 
 <script>
+import { resolve } from 'url'
 const compressImages = require('compress-images')
+const fs = require('fs')
+const Jimp = require('jimp')
 
 export default {
   props: ['isShowDialog'],
@@ -48,7 +51,7 @@ export default {
       sideListData: [],
       isFrontAllSelected: false,
       isSideAllSelected: false,
-      isCompressing: false
+      isPreprocessing: false
     }
   },
   methods: {
@@ -95,8 +98,8 @@ export default {
         })
       }
     },
-    Compress (flag) {
-      return new Promise(resolve => {
+    Compress (flag, selectedArr) {
+      return new Promise((resolve, reject) => {
         let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
         let dirPath = params.dirPath.replace(/\\/g, '/') + '/*.{jpg,JPG,jpeg,JPEG}'
         let compressDirPath = params.compressDirPath
@@ -110,35 +113,83 @@ export default {
             if (completed) {
               console.log(err)
               console.log(completed)
-              resolve(completed)
+              resolve(true)
+            } else {
+              reject(false)
             }
           }
         )
       })
     },
-    async Measure () {
-      // 当前只量测侧面图！！！！！
-      this.isCompressing = true
-      let isSideCompressed = await this.Compress(2)
-      if (isSideCompressed) {
-        this.$store.commit('ChangeMeasureState', {isMeasuring: true})
-        let selectedArr = []
-        let compressDirPath = this.$store.state.File.params2.compressDirPath
-        this.$refs.sideTable.selection.forEach(item => {
-          selectedArr.push(compressDirPath + item.filename)
+    Preprocess (flag, selectedArr) {
+      return new Promise(resolve => {
+        let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
+        let preprocessDirPath = params.preprocessDirPath
+        let compressDirPath = params.compressDirPath
+        fs.readdir(compressDirPath, (err, files) => {
+          let promiseArray = []
+          for (let file of files) {
+            if (selectedArr.indexOf(file) > -1) {
+              promiseArray.push(new Promise(resolve => {
+                Jimp.read(compressDirPath + file, (err, img) => {
+                  if (!err) {
+                    img.scale(0.2)
+                    img.write(preprocessDirPath + file)
+                    resolve()
+                  }
+                })
+              }))
+            }
+          }
+          Promise.all(promiseArray).then(res => {
+            resolve(true)
+          })
         })
-        this.$emit('StartMeasure', selectedArr)
-        this.$notify.info({
-          title: '消息',
-          message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
-          duration: 3500,
-          position: 'bottom-left'
-        })
-      } else {
-        this.$message.error('图片预处理出错，请稍后重试')
-      }
-      this.isCompressing = false
-      this.Close()
+      })
+    },
+    Measure () {
+      let that = this
+      that.isPreprocessing = true
+
+      let selectedArr = []
+      that.$refs.sideTable.selection.forEach(item => {
+        selectedArr.push(item.filename)
+      })
+      that.Compress(2, selectedArr).then((res) => {
+        if (res) {
+          that.Preprocess(2, selectedArr).then(res => {
+            if (res) {
+              console.log('sss')
+              that.$store.commit('ChangeMeasureState', {isMeasuring: true})
+              let fileDirArr = []
+              let preprocessDirPath = that.$store.state.File.params2.preprocessDirPath
+              that.$refs.sideTable.selection.forEach(item => {
+                fileDirArr.push(preprocessDirPath + item.filename)
+              })
+              console.log(fileDirArr)
+              that.$emit('StartMeasure', fileDirArr)
+              that.$notify.info({
+                title: '消息',
+                message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
+                duration: 3500,
+                position: 'bottom-left'
+              })
+              
+              that.isPreprocessing = false
+              that.Close()
+            } else {
+              that.$message.error('图片预处理出错，请稍后重试')
+              that.isPreprocessing = false
+              that.Close()
+            }
+          })
+        } else {
+          that.$message.error('图片预处理出错，请稍后重试')
+          that.isPreprocessing = false
+          that.Close()
+        }
+      })
+    
     },
     Close () {
       this.$emit('CloseDialog')

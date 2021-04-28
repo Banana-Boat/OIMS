@@ -74,10 +74,13 @@
 <script>
 import MeasureDialog from './MeasureDialog'
 import {jsPDF} from 'jspdf'
+import path from 'path'
+import { resolve } from 'url'
 const {dialog} = require('electron').remote
 const fs = require('fs')
 const parser = require('fast-xml-parser')
 const axios = require('axios')
+
 
 export default {
   components: {
@@ -133,19 +136,19 @@ export default {
     CloseDialog () {
       this.isShowDialog = false
     },
-    StartMeasure (seletedArr) {
-      let that = this
-      fs.readFile('./tmp/xml/result.xml', 'utf-8', (err, res) => {
-        let imgList = parser.parse(res)['image-list']['image']
-        if (!Array.isArray(imgList)) {
-          imgList = [imgList]
-        }
-        console.log(imgList)
-        that.WriteToResultList(2, imgList)
-        // that.WriteToResultList(1, imgList) // 正面图待完善
-        that.WriteToFileList(1, imgList)
-        that.WriteToFileList(2, imgList)
-      })
+    StartMeasure (fileDirArr) {
+      // let that = this
+      // fs.readFile('./tmp/xml/result.xml', 'utf-8', (err, res) => {
+      //   let imgList = parser.parse(res)['image-list']['image']
+      //   if (!Array.isArray(imgList)) {
+      //     imgList = [imgList]
+      //   }
+      //   console.log(imgList)
+      //   that.WriteToResultList(2, imgList)
+      //   // that.WriteToResultList(1, imgList) // 正面图待完善
+      //   that.WriteToFileList(1, imgList)
+      //   that.WriteToFileList(2, imgList)
+      // })
       
 
       // let that = this
@@ -159,19 +162,34 @@ export default {
       // that.WriteToFileList(1, imgList)
       // that.WriteToFileList(2, imgList)
 
+      let that = this
+      let jsonData = []
+      for (let fileDir of fileDirArr) {
+        console.log(fileDir)
 
-      // let that = this
-      // console.log(seletedArr)
-      // let jsonData = []
-      // seletedArr.forEach(item => {
-      //   let data = fs.readFileSync(item)
+          let data = fs.readFileSync(fileDir)
+          console.log(`data:${data}`)
+        
+
+
+        data = Buffer.from(data).toString('base64')
+        jsonData.push({
+          name: fileDir.split('/').pop(),
+          data: data
+        })
+        
+        
+      }
+      // fileDirArr.forEach(item => {
+      //   let data = fs.readFileSync('./tmp/img/side_preprocess/000182.jpg')
+      //   console.log(data)
       //   data = Buffer.from(data).toString('base64')
       //   jsonData.push({
       //     name: item.split('/').pop(),
       //     data: data
       //   })
       // })
-      // console.log(jsonData)
+      console.log(jsonData)
       // axios({
       //   method: 'post',
       //   url: 'http://106.75.216.192:12308/image',
