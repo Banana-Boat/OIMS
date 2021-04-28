@@ -102,7 +102,7 @@ export default {
         let compressDirPath = params.compressDirPath
         compressImages(dirPath, compressDirPath,
           {compress_force: false, statistic: true, autoupdate: true}, false,
-          {jpg: {engine: 'mozjpeg', command: ['-quality', '100']}},// 固定为15
+          {jpg: {engine: 'mozjpeg', command: ['-quality', '15']}},// 固定为15
           {png: {engine: false, command: false}},
           {svg: {engine: false, command: false}},
           {gif: {engine: false, command: false}},
