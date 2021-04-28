@@ -135,69 +135,106 @@ export default {
     },
     StartMeasure (seletedArr) {
       let that = this
-      let jsonData = []
-      seletedArr.forEach(item => {
-        let data = fs.readFileSync(item)
-        data = Buffer.from(data).toString('base64')
-        jsonData.push({
-          name: item.split('/').pop(),
-          data: data
-        })
-      })
-      axios({
-        method: 'post',
-        url: 'http://api.zerokirin.online/oims/image',
-        headers: {
-          'Content-Type': 'application/json',
-          'sign': 'spppk'
-        },
-        data: jsonData
-      }).then(res => {
-        if (res.data.error === 0) {
-          // url参数id待改
-          let totalTime = 0
-          that.measureInterval = setInterval(() => {
-            totalTime += 3
-            axios({
-              method: 'get',
-              url: 'http://api.zerokirin.online/oims/xml?id=123',
-              headers: {'sign': 'spppk'},
-              responseType: 'json'
-            }).then(res => {
-              if (res.data.error === 0) {
-                let data = window.atob(res.data.data)
-                let imgList = parser.parse(data)['image-list']['image']
-                if (!Array.isArray(imgList)) {
-                  imgList = [imgList]
-                }
-                that.WriteToResultList(2, imgList)
-                // that.WriteToResultList(1, imgList) // 正面图待完善
-                that.WriteToFileList(1, imgList)
-                that.WriteToFileList(2, imgList)
-                clearInterval(that.measureInterval)
-                this.$store.commit('ChangeMeasureState', {isMeasuring: false})
-                this.$notify.success({
-                  title: '成功',
-                  message: '量测已完成，总耗时' + Math.ceil(totalTime / 60) + '分钟',
-                  duration: 3500,
-                  position: 'bottom-left'
-                })
-              } else {
-                throw new Error(1)
-              }
-            }).catch((err) => {
-              console.log(err)
-              this.$message.error('量测出错，请稍后重试')
-              clearInterval(that.measureInterval)
-            })
-          }, 3000)
-        } else {
-          throw new Error(1)
+      fs.readFile('./tmp/xml/result.xml', 'utf-8', (err, res) => {
+        let imgList = parser.parse(res)['image-list']['image']
+        if (!Array.isArray(imgList)) {
+          imgList = [imgList]
         }
-      }).catch(() => {
-        this.$message.error('量测出错，请稍后重试')
-        clearInterval(that.measureInterval)
+        console.log(imgList)
+        that.WriteToResultList(2, imgList)
+        // that.WriteToResultList(1, imgList) // 正面图待完善
+        that.WriteToFileList(1, imgList)
+        that.WriteToFileList(2, imgList)
       })
+      
+
+      // let that = this
+      // let data = window.atob(res.data.data)
+      // let imgList = parser.parse(data)['image-list']['image']
+      // if (!Array.isArray(imgList)) {
+      //   imgList = [imgList]
+      // }
+      // that.WriteToResultList(2, imgList)
+      // // that.WriteToResultList(1, imgList) // 正面图待完善
+      // that.WriteToFileList(1, imgList)
+      // that.WriteToFileList(2, imgList)
+
+
+      // let that = this
+      // console.log(seletedArr)
+      // let jsonData = []
+      // seletedArr.forEach(item => {
+      //   let data = fs.readFileSync(item)
+      //   data = Buffer.from(data).toString('base64')
+      //   jsonData.push({
+      //     name: item.split('/').pop(),
+      //     data: data
+      //   })
+      // })
+      // console.log(jsonData)
+      // axios({
+      //   method: 'post',
+      //   url: 'http://106.75.216.192:12308/image',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'sign': 'spppk'
+      //   },
+      //   data: jsonData
+      // }).then(res => {
+      //   if (res.data.error === 0) {
+      //     console.log(res.data.data)
+      //     let totalTime = 0
+      //     let period = 10
+
+      //     that.measureInterval = setInterval(() => {
+      //       totalTime += period
+      //       axios({
+      //         method: 'get',
+      //         url: 'http://106.75.216.192:12308/xml?id=' + res.data.data,
+      //         headers: {'sign': 'spppk'},
+      //         responseType: 'json'
+      //       }).then(res => {
+      //         console.log(res)
+      //         console.log('已耗时' + Math.ceil(totalTime / 60) + '分钟')
+      //         if (res.data.error === 0) {
+      //           console.log(res.data.data)
+      //           let data = window.atob(res.data.data)
+      //           let imgList = parser.parse(data)['image-list']['image']
+      //           if (!Array.isArray(imgList)) {
+      //             imgList = [imgList]
+      //           }
+      //           that.WriteToResultList(2, imgList)
+      //           // that.WriteToResultList(1, imgList) // 正面图待完善
+      //           that.WriteToFileList(1, imgList)
+      //           that.WriteToFileList(2, imgList)
+      //           clearInterval(that.measureInterval)
+      //           this.$store.commit('ChangeMeasureState', {isMeasuring: false})
+      //           this.$notify.success({
+      //             title: '成功',
+      //             message: '量测已完成，总耗时' + Math.ceil(totalTime / 60) + '分钟',
+      //             duration: 0,
+      //             position: 'bottom-left'
+      //           })
+      //         } else if (res.data.error === '40401') {
+      //           // 检测未完成则返回40401错误，继续查找
+      //         } else {
+      //           throw new Error(1)
+      //         }
+      //       }).catch(() => {
+      //         this.$message.error('量测出错，请稍后重试')
+      //         clearInterval(that.measureInterval)
+      //         this.$store.commit('ChangeMeasureState', {isMeasuring: false})
+      //       })
+      //     }, period * 1000)
+      //   } else {
+      //     throw new Error(1)
+      //   }
+      // }).catch((e) => {
+      //   console.log(e)
+      //   this.$message.error('量测出错，请稍后重试')
+      //   clearInterval(that.measureInterval)
+      //   this.$store.commit('ChangeMeasureState', {isMeasuring: false})
+      // })
     },
     WriteToResultList (flag, imgList) {
       let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2

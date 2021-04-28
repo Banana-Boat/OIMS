@@ -59,6 +59,7 @@ export default {
     },
     // 将图片设置为背景，并调整图片与画布大小。若有量测数据，则渲染至画布上
     ShowImage (flag, canvas, imgInfo) {
+      console.log(imgInfo)
       let that = this
       canvas.clear() // 清空画布
       let img = new Image()

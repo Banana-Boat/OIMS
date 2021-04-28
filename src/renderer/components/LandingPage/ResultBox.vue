@@ -25,7 +25,10 @@ export default {
   computed: {
     isParsed2 () {
       let curFilename = this.$store.state.File.params2.curFilename
-      let isParsed = this.$store.state.File.params2.resList[curFilename].isParsed
+      let isParsed = null
+      if (this.$store.state.File.params2.resList[curFilename]) {
+        isParsed = this.$store.state.File.params2.resList[curFilename].isParsed
+      }
       if (isParsed) {
         let parseRes = this.$store.state.File.params2.resList[curFilename].parseRes
         let result = this.CalResult(parseRes)

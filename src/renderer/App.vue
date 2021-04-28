@@ -14,14 +14,14 @@
   body{
     margin: 0;
     height: 100vh;
-    font-family: "微软雅黑";
+    font-family: "Microsoft YaHei";
   }
   #app{
     height: 100%;
   }
 
   button{
-    font-family: "微软雅黑";
+    font-family: "Microsoft YaHei";
   }
   
   .el-card__header {
