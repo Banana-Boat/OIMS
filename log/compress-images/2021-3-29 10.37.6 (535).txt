@@ -1,0 +1,7 @@
+File from: [./tmp/img/side_preprocess//*.{jpg,JPG,jpeg,JPEG}]
+
+File to: [-]
+
+Compression algorithm: [-]
+
+Description:  Directory is empty!: 

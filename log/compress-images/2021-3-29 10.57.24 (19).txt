@@ -1,0 +1,7 @@
+File from: [C:/Users/93749/Desktop/test_img/side/*.{jpg,JPG,jpeg,JPEG}/*.{jpg,JPG,jpeg,JPEG}]
+
+File to: [-]
+
+Compression algorithm: [-]
+
+Description:  Directory is empty!: 

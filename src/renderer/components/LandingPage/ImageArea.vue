@@ -255,12 +255,12 @@ export default {
     },
     // 还原x坐标
     RestoreX (x, scale) {
-      let res = Number.parseInt(x) * scale
+      let res = Number.parseInt(x) * 5 * scale
       return Number.parseInt(res)
     },
     // 还原y坐标
     RestoreY (y, scale, originalHeight) {
-      let res = (Number.parseInt(y) + originalHeight / 2) * scale
+      let res = (Number.parseInt(y) * 5 + originalHeight / 2) * scale
       return Number.parseInt(res)
     }
   },

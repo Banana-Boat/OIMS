@@ -90,7 +90,8 @@ export default {
     return {
       isShowDrawer: false,
       isShowDialog: false,
-      measureInterval: null
+      measureInterval: null,
+      measureId: null
     }
   },
   computed: {
@@ -164,31 +165,16 @@ export default {
 
       let that = this
       let jsonData = []
-      for (let fileDir of fileDirArr) {
-        console.log(fileDir)
-
-          let data = fs.readFileSync(fileDir)
-          console.log(`data:${data}`)
-        
-
-
+      
+      fileDirArr.forEach(item => {
+        let data = fs.readFileSync(item)
         data = Buffer.from(data).toString('base64')
+
         jsonData.push({
-          name: fileDir.split('/').pop(),
+          name: item.split('/').pop(),
           data: data
         })
-        
-        
-      }
-      // fileDirArr.forEach(item => {
-      //   let data = fs.readFileSync('./tmp/img/side_preprocess/000182.jpg')
-      //   console.log(data)
-      //   data = Buffer.from(data).toString('base64')
-      //   jsonData.push({
-      //     name: item.split('/').pop(),
-      //     data: data
-      //   })
-      // })
+      })
       console.log(jsonData)
       // axios({
       //   method: 'post',
@@ -203,7 +189,7 @@ export default {
       //     console.log(res.data.data)
       //     let totalTime = 0
       //     let period = 10
-
+      //     that.measureId = res.data.data
       //     that.measureInterval = setInterval(() => {
       //       totalTime += period
       //       axios({
@@ -294,6 +280,21 @@ export default {
       }).then(() => {
         clearInterval(that.measureInterval)
         this.$store.commit('ChangeMeasureState', {isMeasuring: false})
+        
+        if (that.measureId != null) { 
+          axios({
+            method: 'delete',
+            url: 'http://106.75.216.192:12308/cancel?id=' + that.measureId,
+            headers: {
+              'Content-Type': 'application/json',
+              'sign': 'spppk'
+            }
+          }).then(res => {
+            console.log(res)
+            that.measureId = null
+            clearInterval(cancelInterval)
+          })
+        }
       })
     },
     Print () {
