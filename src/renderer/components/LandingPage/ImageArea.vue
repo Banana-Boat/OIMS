@@ -12,10 +12,15 @@
 </template>
 
 <script>
+/* 
+  图像显示组件，包含以下内容：
+  1. 正位图显示框
+  2. 侧位图显示框 */
+
 import { fabric } from 'fabric'
 
-var canvas1 = null
-var canvas2 = null
+var canvas1 = null  // 正位图画布
+var canvas2 = null  // 侧位图画布
 
 export default {
   data () {
@@ -23,18 +28,18 @@ export default {
     }
   },
   computed: {
-    img1Name () {
+    img1Name () { // 当前打开的正面图文件名
       return this.$store.state.File.params1.curFilename
     },
-    img2Name () {
+    img2Name () { // 当前打开的侧面图文件名
       return this.$store.state.File.params2.curFilename
     },
-    selectedBox () {
+    selectedBox () {  // 当前选中的图片框，用于指定编辑的图片对象（1：正位图区域，2：侧位图区域）
       return this.$store.state.File.selectedImgBox
     }
   },
   watch: {
-    img1Name (nv, ov) {
+    img1Name (nv, ov) { // 监听当前打开图片量测结果的变化
       if (nv !== '') {
         let imgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params1.resList[nv]))
         this.ShowImage(1, canvas1, imgInfo)
@@ -51,23 +56,40 @@ export default {
       }
     }
   },
+  mounted () {
+    const that = this
+    // 当组件被挂载完毕时，创建fabric画布，并根据页面布局改变画布高度
+    that.$nextTick(() => {
+      canvas1 = new fabric.Canvas('canvas1')
+      canvas2 = new fabric.Canvas('canvas2')
+      let imgBoxHeight = this.$refs.imgBox.clientHeight
+      canvas1.setHeight(imgBoxHeight - 5)
+      canvas2.setHeight(imgBoxHeight - 5)
+    })
+  },
   methods: {
+    /* 功能：选择正/侧位图显示框 */
     SelectImgBox (flag) {
       this.$store.commit('ChangeSelectedImgBox', {
         flag: flag
       })
     },
-    // 将图片设置为背景，并调整图片与画布大小。若有量测数据，则渲染至画布上
+    /* 功能：显示图片。包含以下操作：
+          1. 图片将以画布背景展现
+          2. 调整图片与画布大小
+          3. 若有量测数据，则渲染至画布上 */
     ShowImage (flag, canvas, imgInfo) {
       console.log(imgInfo)
       let that = this
+
       canvas.clear() // 清空画布
+
       let img = new Image()
       img.src = imgInfo.path
       img.onload = () => {
-        let ratio = img.height / img.width
-        let scale = canvas.height / img.height
-        let originalHeight = img.height
+        let ratio = img.height / img.width  // 当前打开图像的长宽比
+        let scale = canvas.height / img.height  // 画布与图像之间高度比
+        let originalHeight = img.height // 图像初始高度
         canvas.setWidth(canvas.height / ratio)
         fabric.Image.fromURL(imgInfo.path, function (img, isError) {
           img.set({top: 0, left: 0, scaleX: scale, scaleY: scale})
@@ -217,7 +239,7 @@ export default {
         }
       }
     },
-    // 解析点坐标
+    /* 功能：解析点坐标 */ 
     ParseResult (measureRes, scale, originalHeight) {
       let parseRes = {}
       let sXmin = this.RestoreX(measureRes.sacrum.xmin, scale)
@@ -253,26 +275,16 @@ export default {
       }
       return parseRes
     },
-    // 还原x坐标
+    /* 功能：还原x坐标（由于图片上传时进行了缩小5倍的操作，故需要还原） */ 
     RestoreX (x, scale) {
       let res = Number.parseInt(x) * 5 * scale
       return Number.parseInt(res)
     },
-    // 还原y坐标
+    /* 功能：还原y坐标 */ 
     RestoreY (y, scale, originalHeight) {
       let res = (Number.parseInt(y) * 5 + originalHeight / 2) * scale
       return Number.parseInt(res)
     }
-  },
-  mounted () {
-    const that = this
-    that.$nextTick(() => {
-      canvas1 = new fabric.Canvas('canvas1')
-      canvas2 = new fabric.Canvas('canvas2')
-      let imgBoxHeight = this.$refs.imgBox.clientHeight
-      canvas1.setHeight(imgBoxHeight - 5)
-      canvas2.setHeight(imgBoxHeight - 5)
-    })
   }
 }
 </script>

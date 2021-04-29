@@ -1,26 +1,5 @@
 <image-list>
     <image>
-        <name>000175.jpg</name>
-        <sacrum>
-            <xmin>1602</xmin>
-            <ymin>4956</ymin>
-            <xmax>1843</xmax>
-            <ymax>5133</ymax>
-        </sacrum>
-        <femoralhead1>
-            <xmin>1808</xmin>
-            <ymin>5509</ymin>
-            <xmax>2226</xmax>
-            <ymax>5907</ymax>
-        </femoralhead1>
-        <femoralhead2>
-            <xmin>1740</xmin>
-            <ymin>5814</ymin>
-            <xmax>2177</xmax>
-            <ymax>6223</ymax>
-        </femoralhead2>
-    </image>
-    <image>
         <name>000182.jpg</name>
         <sacrum>
             <xmin>207</xmin>

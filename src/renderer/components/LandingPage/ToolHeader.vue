@@ -72,6 +72,11 @@
 </template>
 
 <script>
+/* 顶部导航栏组件，包含以下部分：
+  1. 左侧抽屉导航栏
+  2. 图片目录选择、打印及量测按钮
+  3. 量测状态栏、取消量测按钮 */
+
 import MeasureDialog from './MeasureDialog'
 import {jsPDF} from 'jspdf'
 import path from 'path'
@@ -88,18 +93,34 @@ export default {
   },
   data () {
     return {
-      isShowDrawer: false,
-      isShowDialog: false,
-      measureInterval: null,
-      measureId: null
+      isShowDrawer: false,  // 是否显示抽屉导航栏
+      isShowDialog: false,  // 是否显示量测图片选择窗口
+      measureInterval: null,  // 量测结果查询时间间隔
+      measureId: null  // 当前量测的Id（用于结果查询）
     }
   },
   computed: {
-    isMeasuring () {
+    isMeasuring () {  // 是否正在量测
       return this.$store.state.File.isMeasuring
     }
   },
+  mounted () {
+    let that = this
+    // 测试代码！！！读取并显示本地保存的测量结果，渲染至页面
+    fs.readFile('./tmp/xml/result.xml', 'utf-8', (err, res) => {
+      let imgList = parser.parse(res)['image-list']['image']
+      if (!Array.isArray(imgList)) {
+        imgList = [imgList]
+      }
+      console.log(imgList)
+      that.WriteToResultList(2, imgList)
+      // that.WriteToResultList(1, imgList) // 正面图待完善
+      that.WriteToFileList(1, imgList)
+      that.WriteToFileList(2, imgList)
+    })
+  },
   methods: {
+    /* 功能：选择正面图文件夹 */
     SelectFrontDir () {
       var result = dialog.showOpenDialog({ // 低版本无promise用法
         title: '选择正面图文件夹',
@@ -117,6 +138,7 @@ export default {
         })
       }
     },
+    /* 功能：选择侧面图文件夹 */
     SelectSideDir () {
       var result = dialog.showOpenDialog({ // 低版本无promise用法
         title: '选择侧面图文件夹',
@@ -134,9 +156,12 @@ export default {
         })
       }
     },
+    /* 功能：关闭量测图片选择窗口 */
     CloseDialog () {
       this.isShowDialog = false
     },
+    /* 功能：通过图片选择窗口回传的图片路径数组，将图片逐个以base64格式读取，
+            打包为json上传。 */
     StartMeasure (fileDirArr) {
       // let that = this
       // fs.readFile('./tmp/xml/result.xml', 'utf-8', (err, res) => {
@@ -163,19 +188,20 @@ export default {
       // that.WriteToFileList(1, imgList)
       // that.WriteToFileList(2, imgList)
 
-      let that = this
-      let jsonData = []
+      // let that = this
+      // let jsonData = []
       
-      fileDirArr.forEach(item => {
-        let data = fs.readFileSync(item)
-        data = Buffer.from(data).toString('base64')
+      // fileDirArr.forEach(item => {
+      //   let data = fs.readFileSync(item)
+      //   data = Buffer.from(data).toString('base64')
 
-        jsonData.push({
-          name: item.split('/').pop(),
-          data: data
-        })
-      })
-      console.log(jsonData)
+      //   jsonData.push({
+      //     name: item.split('/').pop(),
+      //     data: data
+      //   })
+      // })
+      // console.log(jsonData)
+
       // axios({
       //   method: 'post',
       //   url: 'http://106.75.216.192:12308/image',
@@ -240,6 +266,7 @@ export default {
       //   this.$store.commit('ChangeMeasureState', {isMeasuring: false})
       // })
     },
+    /* 功能：将识别结果逐项写入结果列表（用于绘制标注点） */
     WriteToResultList (flag, imgList) {
       let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
       let tempResList = JSON.parse(JSON.stringify(params.resList))
@@ -258,6 +285,7 @@ export default {
         resList: tempResList
       })
     },
+    /* 功能：将识别结果逐项写入文件列表（用于文件列表栏显示） */
     WriteToFileList (flag, imgList) {
       let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
       let tempFileList = JSON.parse(JSON.stringify(params.fileList))
@@ -271,6 +299,7 @@ export default {
         fileList: tempFileList
       })
     },
+    /* 功能：取消量测，停止继续向服务器请求量测结果 */
     CancelMeasure () {
       let that = this
       this.$confirm('此操作将终止量测，是否确定终止?', '提示', {
@@ -297,6 +326,7 @@ export default {
         }
       })
     },
+    /* 功能：将量测结果与图片保存为PDF格式文件 */
     Print () {
       try {
         let filename1 = this.$store.state.File.params1.curFilename.split('.')[0]
