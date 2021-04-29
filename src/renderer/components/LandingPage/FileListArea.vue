@@ -52,15 +52,18 @@
 </template>
 
 <script>
+/* 
+  文件列表栏组件 */
+
 export default {
   data () {
     return {
-      isFrontRefreshing: false,
+      isFrontRefreshing: false, // 正面图是否被刷新
       isSideRefreshing: false
     }
   },
   computed: {
-    FrontListData () {
+    FrontListData () {  // 监听正面图列表数据
       let fileList = this.$store.state.File.params1.fileList
       let listData = []
       for (let key in fileList) {
@@ -96,6 +99,7 @@ export default {
     }
   },
   methods: {
+    /* 功能：点击选择正面图列表项 */
     SelectFrontFile (row) {
       this.$store.commit('ChangeCurFilename', {
         flag: 1,
@@ -108,6 +112,7 @@ export default {
         curFilename: row.filename
       })
     },
+    /* 功能：刷新正面图文件列表 */
     RefreshFrontFile () {
       let that = this
       that.$store.dispatch('LoadDir', {

@@ -86,21 +86,20 @@ const fs = require('fs')
 const parser = require('fast-xml-parser')
 const axios = require('axios')
 
-
 export default {
   components: {
     'measure-dialog': MeasureDialog
   },
   data () {
     return {
-      isShowDrawer: false,  // 是否显示抽屉导航栏
-      isShowDialog: false,  // 是否显示量测图片选择窗口
-      measureInterval: null,  // 量测结果查询时间间隔
-      measureId: null  // 当前量测的Id（用于结果查询）
+      isShowDrawer: false, // 是否显示抽屉导航栏
+      isShowDialog: false, // 是否显示量测图片选择窗口
+      measureInterval: null, // 量测结果查询时间间隔
+      measureId: null // 当前量测的Id（用于结果查询）
     }
   },
   computed: {
-    isMeasuring () {  // 是否正在量测
+    isMeasuring () { // 是否正在量测
       return this.$store.state.File.isMeasuring
     }
   },
@@ -175,7 +174,6 @@ export default {
       //   that.WriteToFileList(1, imgList)
       //   that.WriteToFileList(2, imgList)
       // })
-      
 
       // let that = this
       // let data = window.atob(res.data.data)
@@ -190,7 +188,7 @@ export default {
 
       // let that = this
       // let jsonData = []
-      
+
       // fileDirArr.forEach(item => {
       //   let data = fs.readFileSync(item)
       //   data = Buffer.from(data).toString('base64')
@@ -309,8 +307,8 @@ export default {
       }).then(() => {
         clearInterval(that.measureInterval)
         this.$store.commit('ChangeMeasureState', {isMeasuring: false})
-        
-        if (that.measureId != null) { 
+
+        if (that.measureId != null) {
           axios({
             method: 'delete',
             url: 'http://106.75.216.192:12308/cancel?id=' + that.measureId,

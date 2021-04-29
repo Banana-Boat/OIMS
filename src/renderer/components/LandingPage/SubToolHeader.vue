@@ -44,7 +44,7 @@
 </template>
 
 <script>
-/* 
+/*
   次级顶部工具栏组件，包括各类对图像编辑操作的工具 */
 export default {
 }

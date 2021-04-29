@@ -41,7 +41,11 @@
 </template>
 
 <script>
-import { resolve } from 'url'
+/* 量测图片选择窗口组件，包含以下内容
+    1. 正面图选择列表
+    2. 侧面图选择列表
+    3. 图片预处理进度条、量测按钮 */
+
 const {compress} = require('compress-images/promise')
 const fs = require('fs')
 const Jimp = require('jimp')
@@ -50,17 +54,18 @@ export default {
   props: ['isShowDialog'],
   data () {
     return {
-      frontListData: [],
+      frontListData: [],  // 正面图文件列表
       sideListData: [],
-      isFrontAllSelected: false,
+      isFrontAllSelected: false,  // 正面图文件是否全选
       isSideAllSelected: false,
-      isPreprocessing: false,
-      preTotalNum: 0,
-      preCurNum: 0,
-      prePercentage: 0
+      isPreprocessing: false, // 是否正在进行图片预处理
+      preTotalNum: 0, // 待预处理图片总数
+      preCurNum: 0, // 当前已进行预处理的图片数
+      prePercentage: 0  // 当前预处理百分比
     }
   },
   methods: {
+    /* 功能：打开窗口初始化操作 */
     Open () {
       let that = this
       that.isFrontAllSelected = false
@@ -85,6 +90,7 @@ export default {
         })
       })
     },
+    /* 功能：获取文件列表（是否被量测的数据） */
     GetListData (flag) {
       let resList = flag === 1 ? this.$store.state.File.params1.resList : this.$store.state.File.params2.resList
       let tempListData = []
@@ -96,6 +102,7 @@ export default {
       }
       return tempListData
     },
+    /* 功能：全选 */
     SelectAll (flag) {
       if (flag === 1) {
         this.frontListData.forEach(item => {
@@ -107,6 +114,7 @@ export default {
         })
       }
     },
+    /* 功能：压缩所有原图并保存在./tmp/img/_compress目录下 */
     Compress (inputDir, outputDir) {
       return new Promise((resolve, reject) => {
         let source = inputDir.replace(/\\/g, '/') + '/*.{jpg,JPG,jpeg,JPEG}'
@@ -117,69 +125,44 @@ export default {
             jpg: {engine: 'mozjpeg', command: ['-quality', '10']},
             png: {engine: false, command: false},
             svg: {engine: false, command: false},
-            gif: {engine: false, command: false},
+            gif: {engine: false, command: false}
           }
         })
         resolve(res)
       })
     },
+    /* 功能: 对已选图片进行缩小5倍的预处理，并保存在./tmp/img/_preprocess目录下 */
     Preprocess (inputDir, outputDir, selectedArr) {
       let that = this
       that.preTotalNum = selectedArr.length
-      
       return new Promise(resolve => {
         fs.readdir(inputDir, (err, files) => {
           files.reduce((prev, cur, index) => {
-            
-              return prev.then(res => {
-                return new Promise(resolve => {
-                  if (selectedArr.indexOf(files[index]) > -1) {
-                    Jimp.read(inputDir + files[index], (err, img) => {
-                      if (!err) {
-                        img.scale(0.2)
-                        img.writeAsync(outputDir + files[index]).then(res => {
-                          that.preCurNum ++
-                          that.prePercentage = Number.parseInt(that.preCurNum / that.preTotalNum * 100)
-                          resolve()
-                        })
-                      }
-                    })
-                  } else {
-                    resolve()
-                  }
-                  
-                })
+            return prev.then(res => {
+              return new Promise(resolve => {
+                if (selectedArr.indexOf(files[index]) > -1) {
+                  Jimp.read(inputDir + files[index], (err, img) => {
+                    if (!err) {
+                      img.scale(0.2)
+                      img.writeAsync(outputDir + files[index]).then(res => {
+                        that.preCurNum++
+                        that.prePercentage = Number.parseInt(that.preCurNum / that.preTotalNum * 100)
+                        resolve()
+                      })
+                    }
+                  })
+                } else {
+                  resolve()
+                }
               })
-            
-            
+            })
           }, Promise.resolve({})).then(() => {
             resolve(true)
           })
-
-          // let promiseArray = []
-          // that.preTotalNum = files.length
-          // for (let file of files) {
-          //   if (selectedArr.indexOf(file) > -1) {
-          //     promiseArray.push(new Promise(resolve => {
-          //       Jimp.read(inputDir + file, (err, img) => {
-          //         if (!err) {
-          //           img.scale(0.2)
-          //           img.writeAsync(outputDir + file).then(res => {
-          //             that.preCurNum ++
-          //             console.log(that.preCurNum)
-          //             resolve()
-          //           })
-          //         }
-          //       })
-          //     }))
-          //   }
-          // }
-          // Promise.all(promiseArray).then(res => {
-          //   resolve(true)
-          // })
         })
       })
     },
+    /* 功能：获取被选择的图片，进行压缩、缩小预处理后，将图片路径数组传递至父级组件ToolHeader，进行处理 */
     Measure () {
       let that = this
       that.isPreprocessing = true
@@ -210,7 +193,7 @@ export default {
                 duration: 3500,
                 position: 'bottom-left'
               })
-              
+
               that.isPreprocessing = false
               that.Close()
             } else {
@@ -225,7 +208,6 @@ export default {
           that.Close()
         }
       })
-
     },
     Close () {
       this.$emit('CloseDialog')

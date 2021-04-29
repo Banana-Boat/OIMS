@@ -12,15 +12,15 @@
 </template>
 
 <script>
-/* 
+/*
   图像显示组件，包含以下内容：
   1. 正位图显示框
   2. 侧位图显示框 */
 
 import { fabric } from 'fabric'
 
-var canvas1 = null  // 正位图画布
-var canvas2 = null  // 侧位图画布
+var canvas1 = null // 正位图画布
+var canvas2 = null // 侧位图画布
 
 export default {
   data () {
@@ -34,7 +34,7 @@ export default {
     img2Name () { // 当前打开的侧面图文件名
       return this.$store.state.File.params2.curFilename
     },
-    selectedBox () {  // 当前选中的图片框，用于指定编辑的图片对象（1：正位图区域，2：侧位图区域）
+    selectedBox () { // 当前选中的图片框，用于指定编辑的图片对象（1：正位图区域，2：侧位图区域）
       return this.$store.state.File.selectedImgBox
     }
   },
@@ -87,8 +87,8 @@ export default {
       let img = new Image()
       img.src = imgInfo.path
       img.onload = () => {
-        let ratio = img.height / img.width  // 当前打开图像的长宽比
-        let scale = canvas.height / img.height  // 画布与图像之间高度比
+        let ratio = img.height / img.width // 当前打开图像的长宽比
+        let scale = canvas.height / img.height // 画布与图像之间高度比
         let originalHeight = img.height // 图像初始高度
         canvas.setWidth(canvas.height / ratio)
         fabric.Image.fromURL(imgInfo.path, function (img, isError) {
@@ -98,11 +98,11 @@ export default {
             that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
           })
         })
-        // 解析数据并绘制图线
+        // 若图像已被量测，则解析数据并绘制图线
         if (imgInfo.isMeasured) {
           let parseRes = {}
           let filename = imgInfo.path.split('\\').pop()
-          if (!imgInfo.isParsed) {
+          if (!imgInfo.isParsed) {  // 若图像未被解析，则调用函数将其解析
             parseRes = that.ParseResult(imgInfo.measureRes, scale, originalHeight)
             let tempResList = JSON.parse(JSON.stringify(that.$store.state.File.params2.resList))
             tempResList[filename].isParsed = true
@@ -111,10 +111,11 @@ export default {
               flag: 2,
               resList: tempResList
             })
-          } else {
+          } else {  //若图像已被解析，则直接渲染
             parseRes = JSON.parse(JSON.stringify(that.$store.state.File.params2.resList[filename].parseRes))
           }
-          let lineAttr = {
+
+          let lineAttr = {  // 绘制直线的属性
             fill: 'blue',
             stroke: 'blue',
             strokeWidth: 1,
@@ -178,6 +179,7 @@ export default {
           canvas.renderAll()
           // 更新全局变量
           that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
+          
           // 画布监听事件
           canvas.on('object:moving', (e) => {
             if (e.target) {
@@ -239,7 +241,7 @@ export default {
         }
       }
     },
-    /* 功能：解析点坐标 */ 
+    /* 功能：解析点坐标 */
     ParseResult (measureRes, scale, originalHeight) {
       let parseRes = {}
       let sXmin = this.RestoreX(measureRes.sacrum.xmin, scale)
@@ -275,12 +277,12 @@ export default {
       }
       return parseRes
     },
-    /* 功能：还原x坐标（由于图片上传时进行了缩小5倍的操作，故需要还原） */ 
+    /* 功能：还原x坐标（由于图片上传时进行了缩小5倍的操作，故需要还原） */
     RestoreX (x, scale) {
       let res = Number.parseInt(x) * 5 * scale
       return Number.parseInt(res)
     },
-    /* 功能：还原y坐标 */ 
+    /* 功能：还原y坐标 */
     RestoreY (y, scale, originalHeight) {
       let res = (Number.parseInt(y) * 5 + originalHeight / 2) * scale
       return Number.parseInt(res)
