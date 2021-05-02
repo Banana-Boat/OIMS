@@ -11,7 +11,7 @@ const state = {
     'canvasData': null, // 画布
     'testx':'',
     'testy':'',
-    'testList':{}
+    'testList':{}  //绘制直线参数
   },
   // 侧面图的相关变量
   params2: {
@@ -31,9 +31,10 @@ const state = {
 const mutations = {
   ChangTest(state,payload){
     //alert(payload.testList[payload.curFilename].x1)
-    state.params1.testx=payload.testx
-    state.params1.testy=payload.testy
-    state.testList=payload.testList
+    var params = payload.flag == 1? state.params1 : state.params2
+    params.testx=payload.testx
+    params.testy=payload.testy
+    params.testList=payload.testList
     //alert(payload.testList[payload.curFilename].x1)
   },
   // 修改图片目录的路径。flag=1：正面图，flag=2：侧面图

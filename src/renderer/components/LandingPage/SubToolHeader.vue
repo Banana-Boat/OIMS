@@ -51,8 +51,10 @@ export default {
   methods:{
     Test(){
       //alert("ok")
-      let curFilename = this.$store.state.File.params1.curFilename
-      let tempList = this.$store.state.File.params1.testList
+      let flag = this.$store.state.File.selectedImgBox
+      let params = flag==1? this.$store.state.File.params1 : this.$store.state.File.params2
+      let curFilename = params.curFilename
+      let tempList = params.testList
       tempList[curFilename]={
         'x1':100,
         'y1':100,
@@ -61,6 +63,7 @@ export default {
       }
       alert(curFilename)
       this.$store.commit('ChangTest', {
+          flag: flag,
           testx: 300,
           texty: 100,
           curFilename: curFilename,

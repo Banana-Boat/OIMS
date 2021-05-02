@@ -102,11 +102,12 @@ export default {
           })
         })
 
-        let curFilename = this.$store.state.File.params1.curFilename
-        let textx1 = this.$store.state.File.params1.testList[curFilename].x1
-        let texty1 = this.$store.state.File.params1.testList[curFilename].y1
-        let textx2 = this.$store.state.File.params1.testList[curFilename].x2
-        let texty2 = this.$store.state.File.params1.testList[curFilename].y2
+        let params = flag==1? this.$store.state.File.params1: this.$store.state.File.params2
+        let curFilename = params.curFilename
+        let textx1 = params.testList[curFilename].x1
+        let texty1 = params.testList[curFilename].y1
+        let textx2 = params.testList[curFilename].x2
+        let texty2 = params.testList[curFilename].y2
         
         if( textx1 != null ) {
           //var red = new fabric.Circle({ radius: 5, fill: '#f55', top: textx1, left: texty1 })
@@ -147,8 +148,8 @@ export default {
               let p = e.target 
               if (['r0','r1'].includes(p.self)) {
                 //alert('daa')
-                let curFilename = this.$store.state.File.params1.curFilename
-                let tempResList = this.$store.state.File.params1.testList
+                let curFilename = params.curFilename
+                let tempResList = params.testList
                 switch (p.self) {
                   case 'r0':
                     p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
