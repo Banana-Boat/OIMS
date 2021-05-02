@@ -8,7 +8,10 @@ const state = {
     'fileList': {}, // 文件列表（用于维护文件列表栏）
     'resList': {}, // 量测结果列表（用于维护图片的量测结果，包含每一项）
     'curFilename': '', // 当前打开的文件文件名
-    'canvasData': null // 画布
+    'canvasData': null, // 画布
+    'testx':'',
+    'testy':'',
+    'testList':{}
   },
   // 侧面图的相关变量
   params2: {
@@ -17,7 +20,8 @@ const state = {
     'fileList': {},
     'resList': {},
     'curFilename': '',
-    'canvasData': null
+    'canvasData': null,
+    'testList':{}
   },
   selectedImgBox: 1, // 当前选中的图片框
   isMeasuring: false, // 是否在量测中
@@ -25,6 +29,13 @@ const state = {
 }
 
 const mutations = {
+  ChangTest(state,payload){
+    //alert(payload.testList[payload.curFilename].x1)
+    state.params1.testx=payload.testx
+    state.params1.testy=payload.testy
+    state.testList=payload.testList
+    //alert(payload.testList[payload.curFilename].x1)
+  },
   // 修改图片目录的路径。flag=1：正面图，flag=2：侧面图
   ChangeDirPath (state, payload) {
     var params = payload.flag === 1 ? state.params1 : state.params2

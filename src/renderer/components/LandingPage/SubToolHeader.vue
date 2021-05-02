@@ -16,7 +16,7 @@
       </div>
     </el-tooltip>
     <el-tooltip content="绘制直线" placement="bottom-start" :open-delay=700 effect="light">
-      <div id="drawLineBtn" class="sub-tool-btn">
+      <div id="drawLineBtn" class="sub-tool-btn" @click="Test">
         <img src="../../assets/btn-icon/line.svg">
       </div>
     </el-tooltip>
@@ -44,10 +44,32 @@
 </template>
 
 <script>
+
 /*
   次级顶部工具栏组件，包括各类对图像编辑操作的工具 */
 export default {
+  methods:{
+    Test(){
+      //alert("ok")
+      let curFilename = this.$store.state.File.params1.curFilename
+      let tempList = this.$store.state.File.params1.testList
+      tempList[curFilename]={
+        'x1':100,
+        'y1':100,
+        'x2':200,
+        'y2':200
+      }
+      alert(curFilename)
+      this.$store.commit('ChangTest', {
+          testx: 300,
+          texty: 100,
+          curFilename: curFilename,
+          testList: tempList
+      })
+    }
+  }
 }
+
 </script>
 
 <style lang="less">

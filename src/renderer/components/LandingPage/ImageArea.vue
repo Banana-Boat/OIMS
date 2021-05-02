@@ -43,6 +43,7 @@ export default {
       if (nv !== '') {
         let imgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params1.resList[nv]))
         this.ShowImage(1, canvas1, imgInfo)
+        // this.Test(canvas1)
       } else {
         canvas1.clear()
       }
@@ -51,6 +52,7 @@ export default {
       if (nv !== '') {
         let imgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList[nv]))
         this.ShowImage(2, canvas2, imgInfo)
+        // this.Test(canvas2)
       } else {
         canvas2.clear()
       }
@@ -79,6 +81,7 @@ export default {
           2. 调整图片与画布大小
           3. 若有量测数据，则渲染至画布上 */
     ShowImage (flag, canvas, imgInfo) {
+      // alert(this.$store.state.File.params1.testx)
       console.log(imgInfo)
       let that = this
 
@@ -98,6 +101,86 @@ export default {
             that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
           })
         })
+
+        let curFilename = this.$store.state.File.params1.curFilename
+        let textx1 = this.$store.state.File.params1.testList[curFilename].x1
+        let texty1 = this.$store.state.File.params1.testList[curFilename].y1
+        let textx2 = this.$store.state.File.params1.testList[curFilename].x2
+        let texty2 = this.$store.state.File.params1.testList[curFilename].y2
+        
+        if( textx1 != null ) {
+          //var red = new fabric.Circle({ radius: 5, fill: '#f55', top: textx1, left: texty1 })
+          //var red1 = new fabric.Circle({ radius: 5, fill: '#f55', top: textx2, left: texty2 })
+          let lineAttr = {  // 绘制直线的属性
+            fill: 'blue',
+            stroke: 'blue',
+            strokeWidth: 1,
+            selectable: false,
+            evented: false
+          }
+          let pRadius = 2
+          let pFill = 'red'
+          let textLine = new fabric.Line([textx1, texty1, textx2, texty2], lineAttr)
+          let r0 = new fabric.Circle({
+            left: textx1 - pRadius,
+            top: texty1 - pRadius,
+            radius: pRadius,
+            fill: pFill,
+            'self': 'r0',
+            'adLine': textLine})
+          let r1 = new fabric.Circle({
+            left: textx2 - pRadius,
+            top: texty2 - pRadius,
+            radius: pRadius,
+            fill: pFill,
+            'self': 'r1',
+            'adLine': textLine})
+          r0.hasControls = false
+          r1.hasControls = false
+          canvas.add(textLine,r0,r1)
+          canvas.item(0).hasControls = canvas.item(0).hasBorders = false
+          canvas.item(1).hasControls = canvas.item(1).hasBorders = false
+          canvas.renderAll()
+
+          canvas.on('object:moving', (e) => {
+            if (e.target) {
+              let p = e.target 
+              if (['r0','r1'].includes(p.self)) {
+                //alert('daa')
+                let curFilename = this.$store.state.File.params1.curFilename
+                let tempResList = this.$store.state.File.params1.testList
+                switch (p.self) {
+                  case 'r0':
+                    p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
+                    tempResList[curFilename].x1 = p.adLine.x1
+                    tempResList[curFilename].y1 = p.adLine.y1
+                    break
+                    
+                  case 'r1':
+                    p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
+                    tempResList[curFilename].x2 = p.adLine.x2
+                    tempResList[curFilename].y2 = p.adLine.y2
+                    break
+                    
+                }
+                tempResList[curFilename]={
+                  'x1':p.adLine.x1,
+                  'y1':p.adLine.y1,
+                  'x2':p.adLine.x2,
+                  'y2':p.adLine.y2
+                }
+                that.$store.commit('ChangTest', {
+                  testx: 300,
+                  texty: 100,
+                  curFilename: curFilename,
+                  testList: tempResList
+                })
+                that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
+              }
+            }
+          })
+        }
+
         // 若图像已被量测，则解析数据并绘制图线
         if (imgInfo.isMeasured) {
           let parseRes = {}
@@ -179,12 +262,12 @@ export default {
           canvas.renderAll()
           // 更新全局变量
           that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
-          
           // 画布监听事件
           canvas.on('object:moving', (e) => {
             if (e.target) {
               let p = e.target
               if (['p0', 'p1', 'p3', 'p4'].includes(p.self)) {
+                // alert('daa')
                 let curFilename = this.$store.state.File.params2.curFilename
                 let tempResList = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList))
                 switch (p.self) {
@@ -233,13 +316,17 @@ export default {
                   flag: 2,
                   resList: tempResList
                 })
+
+
+                }
+
                 // 更新全局变量
                 that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
               }
-            }
           })
         }
       }
+      // Test()
     },
     /* 功能：解析点坐标 */
     ParseResult (measureRes, scale, originalHeight) {
@@ -286,7 +373,15 @@ export default {
     RestoreY (y, scale, originalHeight) {
       let res = (Number.parseInt(y) * 5 + originalHeight / 2) * scale
       return Number.parseInt(res)
-    }
+    }/*,
+    Test(canvas){
+      var red = new fabric.Circle({ radius: 5, fill: '#f55', top: 100, left: 100 })
+      var red1 = new fabric.Circle({ radius: 5, fill: '#f55', top: 200, left: 200 })
+      canvas.add(red,red1)
+      canvas.item(0).hasControls = canvas.item(0).hasBorders = false
+      canvas.item(1).hasControls = canvas.item(1).hasBorders = false
+      canvas.renderAll()
+    }*/
   }
 }
 </script>
