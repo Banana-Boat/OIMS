@@ -46,7 +46,7 @@
     2. 侧面图选择列表
     3. 图片预处理进度条、量测按钮 */
 
-const {compress} = require('compress-images/promise')
+// const {compress} = require('compress-images/promise')
 const fs = require('fs')
 const Jimp = require('jimp')
 
@@ -117,17 +117,17 @@ export default {
     /* 功能：压缩所有原图并保存在./tmp/img/_compress目录下 */
     Compress (inputDir, outputDir) {
       return new Promise((resolve, reject) => {
-        let source = inputDir.replace(/\\/g, '/') + '/*.{jpg,JPG,jpeg,JPEG}'
-        let res = compress({
-          source: source,
-          destination: outputDir,
-          enginesSetup: {
-            jpg: {engine: 'mozjpeg', command: ['-quality', '10']},
-            png: {engine: false, command: false},
-            svg: {engine: false, command: false},
-            gif: {engine: false, command: false}
-          }
-        })
+        // let source = inputDir.replace(/\\/g, '/') + '/*.{jpg,JPG,jpeg,JPEG}'
+        // let res = compress({
+        //   source: source,
+        //   destination: outputDir,
+        //   enginesSetup: {
+        //     jpg: {engine: 'mozjpeg', command: ['-quality', '10']},
+        //     png: {engine: false, command: false},
+        //     svg: {engine: false, command: false},
+        //     gif: {engine: false, command: false}
+        //   }
+        // })
         resolve(res)
       })
     },
