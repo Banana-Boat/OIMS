@@ -1,0 +1,17 @@
+<image-list>
+  <image>
+    <name>000182.jpg</name>
+    <femoralhead1>
+      <xmin>226.69482</xmin>
+      <ymin>1136.1265</ymin>
+      <xmax>322.06747</xmax>
+      <ymax>1226.8087</ymax>
+    </femoralhead1>
+    <femoralhead2>
+      <xmin>259.76727</xmin>
+      <ymin>1103.0853</ymin>
+      <xmax>341.02533</xmax>
+      <ymax>1179.1604</ymax>
+    </femoralhead2>
+  </image>
+</image-list>

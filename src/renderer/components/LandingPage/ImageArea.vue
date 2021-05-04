@@ -18,6 +18,7 @@
   2. 侧位图显示框 */
 
 import { fabric } from 'fabric'
+import { convertToJsonString } from 'fast-xml-parser'
 
 var canvas1 = null // 正位图画布
 var canvas2 = null // 侧位图画布
@@ -114,7 +115,7 @@ export default {
           } else {  //若图像已被解析，则直接渲染
             parseRes = JSON.parse(JSON.stringify(that.$store.state.File.params2.resList[filename].parseRes))
           }
-
+          console.log(parseRes)
           let lineAttr = {  // 绘制直线的属性
             fill: 'blue',
             stroke: 'blue',
@@ -124,58 +125,97 @@ export default {
           }
           let pRadius = 2
           let pFill = 'red'
-          let p25Line = new fabric.Line([parseRes.p2[0], parseRes.p2[1], parseRes.p5[0], parseRes.p5[1]], lineAttr)
-          let p01Line = new fabric.Line([parseRes.p0[0], parseRes.p0[1], parseRes.p1[0], parseRes.p1[1]], lineAttr)
-          let p2 = new fabric.Circle({left: parseRes.p2[0] - pRadius, top: parseRes.p2[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
-          let p0 = new fabric.Circle({
-            left: parseRes.p0[0] - pRadius,
-            top: parseRes.p0[1] - pRadius,
-            radius: pRadius,
-            fill: pFill,
-            'self': 'p0',
-            'centerP': p2,
-            'adLine': p01Line,
-            'centerLine': p25Line})
-          let p1 = new fabric.Circle({
-            left: parseRes.p1[0] - pRadius,
-            top: parseRes.p1[1] - pRadius,
-            radius: pRadius,
-            fill: pFill,
-            'self': 'p1',
-            'centerP': p2,
-            'adLine': p01Line,
-            'centerLine': p25Line})
-          let p34Line = new fabric.Line([parseRes.p3[0], parseRes.p3[1], parseRes.p3[0], parseRes.p3[1]], lineAttr)
-          let p5 = new fabric.Circle({left: parseRes.p5[0] - pRadius, top: parseRes.p5[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
-          let p3 = new fabric.Circle({
-            left: parseRes.p3[0] - pRadius,
-            top: parseRes.p3[1] - pRadius,
-            radius: pRadius,
-            fill: pFill,
-            'self': 'p3',
-            'centerP': p5,
-            'adLine': p34Line,
-            'centerLine': p25Line})
-          let p4 = new fabric.Circle({
-            left: parseRes.p3[0] - pRadius,
-            top: parseRes.p3[1] - pRadius,
-            radius: pRadius,
-            fill: pFill,
-            'self': 'p4',
-            'centerP': p5,
-            'adLine': p34Line,
-            'centerLine': p25Line})
-          p0.hasControls = false
-          p1.hasControls = false
-          p2.hasControls = false
-          p3.hasControls = false
-          p4.hasControls = false
-          p5.hasControls = false
-          if (parseRes.p4 != null) {
+
+          let p25Line = null
+          let p01Line = null
+          let p34Line = null
+          let p0 = null
+          let p1 = null
+          let p2 = null
+          let p3 = null
+          let p4 = null
+          let p5 = null
+
+          if(parseRes.p5 && parseRes.p2)
+            p25Line = new fabric.Line([parseRes.p2[0], parseRes.p2[1], parseRes.p5[0], parseRes.p5[1]], lineAttr)
+
+          if(parseRes.p1 && parseRes.p0)
+            p01Line = new fabric.Line([parseRes.p0[0], parseRes.p0[1], parseRes.p1[0], parseRes.p1[1]], lineAttr)
+          
+          if(parseRes.p2)
+            p2 = new fabric.Circle({left: parseRes.p2[0] - pRadius, top: parseRes.p2[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
+          
+          if(parseRes.p0)
+            p0 = new fabric.Circle({
+              left: parseRes.p0[0] - pRadius,
+              top: parseRes.p0[1] - pRadius,
+              radius: pRadius,
+              fill: pFill,
+              'self': 'p0',
+              'centerP': p2 ? p2 : null,
+              'adLine': p01Line ? p01Line : null,
+              'centerLine': p25Line ? p25Line : null})
+          
+          if(parseRes.p1)
+            p1 = new fabric.Circle({
+              left: parseRes.p1[0] - pRadius,
+              top: parseRes.p1[1] - pRadius,
+              radius: pRadius,
+              fill: pFill,
+              'self': 'p1',
+              'centerP': p2 ? p2 : null,
+              'adLine': p01Line ? p01Line : null,
+              'centerLine': p25Line ? p25Line : null})
+
+          if(parseRes.p3)
+            p34Line = new fabric.Line([parseRes.p3[0], parseRes.p3[1], parseRes.p3[0], parseRes.p3[1]], lineAttr)
+          
+          if(parseRes.p5)
+            p5 = new fabric.Circle({left: parseRes.p5[0] - pRadius, top: parseRes.p5[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
+          
+          if(parseRes.p3)
+            p3 = new fabric.Circle({
+              left: parseRes.p3[0] - pRadius,
+              top: parseRes.p3[1] - pRadius,
+              radius: pRadius,
+              fill: pFill,
+              'self': 'p3',
+              'centerP': p5 ? p5 : null,
+              'adLine': p34Line ? p34Line : null,
+              'centerLine': p25Line ? p25Line : null})
+          
+          if(parseRes.p3)
+            p4 = new fabric.Circle({
+              left: parseRes.p3[0] - pRadius,
+              top: parseRes.p3[1] - pRadius,
+              radius: pRadius,
+              fill: pFill,
+              'self': 'p4',
+              'centerP': p5 ? p5 : null,
+              'adLine': p34Line ? p34Line : null,
+              'centerLine': p25Line ? p25Line : null})
+
+          if(parseRes.p0) p0.hasControls = false
+          if(parseRes.p1) p1.hasControls = false
+          if(parseRes.p2) p2.hasControls = false
+          if(parseRes.p3) p3.hasControls = false
+          if(parseRes.p4) p4.hasControls = false
+          if(parseRes.p5) p5.hasControls = false
+
+          if (parseRes.p4) {
             p34Line.set({'x2': parseRes.p4[0], 'y2': parseRes.p4[1]})
             p4.set({'left': parseRes.p4[0] - pRadius, 'top': parseRes.p4[1] - pRadius})
           }
-          canvas.add(p01Line, p34Line, p25Line, p0, p1, p2, p3, p4, p5)
+
+          if (p01Line) canvas.add(p01Line)
+          if (p34Line) canvas.add(p34Line)
+          if (p25Line) canvas.add(p25Line)
+          if (p0) canvas.add(p0)
+          if (p1) canvas.add(p1)
+          if (p2) canvas.add(p2)
+          if (p3) canvas.add(p3)
+          if (p4) canvas.add(p4)
+          if (p5) canvas.add(p5)
           canvas.renderAll()
           // 更新全局变量
           that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
@@ -189,44 +229,80 @@ export default {
                 let tempResList = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList))
                 switch (p.self) {
                   case 'p0':
-                    p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
-                    p.centerP.set({
-                      left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
-                      top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
-                    })
-                    p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
-                    tempResList[curFilename].parseRes.p0 = [p.adLine.x1, p.adLine.y1]
-                    tempResList[curFilename].parseRes.p2 = [p.centerP.left, p.centerP.top]
+                    if(tempResList[curFilename].parseRes.p2 && p.centerP) // 区别四个选择分支
+                      tempResList[curFilename].parseRes.p2 = [p.centerP.left, p.centerP.top]
+
+                    if(p.adLine){ // 区别四个选择分支
+                      tempResList[curFilename].parseRes.p0 = [p.adLine.x1, p.adLine.y1]
+                      p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
+                    }
+
+                    if(p.centerP)
+                      p.centerP.set({
+                        left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
+                        top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
+                      })
+
+                    if(p.centerLine)
+                      p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
+
                     break
                   case 'p1':
-                    p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
-                    p.centerP.set({
-                      left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
-                      top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
-                    })
-                    p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
-                    tempResList[curFilename].parseRes.p1 = [p.adLine.x2, p.adLine.y2]
-                    tempResList[curFilename].parseRes.p2 = [p.centerP.left, p.centerP.top]
+                    if(tempResList[curFilename].parseRes.p2 && p.centerP)
+                      tempResList[curFilename].parseRes.p2 = [p.centerP.left, p.centerP.top]
+
+                    if(p.adLine){
+                      tempResList[curFilename].parseRes.p1 = [p.adLine.x2, p.adLine.y2]
+                      p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
+                    }
+
+                    if(p.centerP)
+                      p.centerP.set({
+                        left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
+                        top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
+                      })
+
+                    if(p.centerLine)
+                      p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
+
                     break
                   case 'p3':
-                    p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
-                    p.centerP.set({
-                      left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
-                      top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
-                    })
-                    p.centerLine.set({'x2': p.centerP.left + pRadius, 'y2': p.centerP.top + pRadius})
-                    tempResList[curFilename].parseRes.p3 = [p.adLine.x1, p.adLine.y1]
-                    tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
+                    if(tempResList[curFilename].parseRes.p2 && p.centerP)
+                      tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
+
+                    if(p.adLine){
+                      tempResList[curFilename].parseRes.p3 = [p.adLine.x1, p.adLine.y1]
+                      p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
+                    }
+
+                    if(p.centerP)
+                      p.centerP.set({
+                        left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
+                        top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
+                      })
+
+                    if(p.centerLine)
+                      p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
+
                     break
                   case 'p4':
-                    p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
-                    p.centerP.set({
-                      left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
-                      top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
-                    })
-                    p.centerLine.set({'x2': p.centerP.left + pRadius, 'y2': p.centerP.top + pRadius})
-                    tempResList[curFilename].parseRes.p4 = [p.adLine.x2, p.adLine.y2]
-                    tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
+                    if(tempResList[curFilename].parseRes.p2 && p.centerP)
+                      tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
+
+                    if(p.adLine){
+                      tempResList[curFilename].parseRes.p4 = [p.adLine.x2, p.adLine.y2]
+                      p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
+                    }
+
+                    if(p.centerP)
+                      p.centerP.set({
+                        left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
+                        top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
+                      })
+
+                    if(p.centerLine)
+                      p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
+
                     break
                 }
                 that.$store.commit('ChangeResList', {
@@ -244,21 +320,34 @@ export default {
     /* 功能：解析点坐标 */
     ParseResult (measureRes, scale, originalHeight) {
       let parseRes = {}
-      let sXmin = this.RestoreX(measureRes.sacrum.xmin, scale)
-      let sYmin = this.RestoreY(measureRes.sacrum.ymin, scale, originalHeight)
-      let sXmax = this.RestoreX(measureRes.sacrum.xmax, scale)
-      let sYmax = this.RestoreY(measureRes.sacrum.ymax, scale, originalHeight)
-      let f1Xmin = this.RestoreX(measureRes.femoralhead1.xmin, scale)
-      let f1Ymin = this.RestoreY(measureRes.femoralhead1.ymin, scale, originalHeight)
-      let f1Xmax = this.RestoreX(measureRes.femoralhead1.xmax, scale)
-      let f1Ymax = this.RestoreY(measureRes.femoralhead1.ymax, scale, originalHeight)
-      let p0 = [sXmin, sYmin]
-      let p1 = [sXmax, sYmax]
-      let p2 = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2]
-      let p3 = [(f1Xmin + f1Xmax) / 2, (f1Ymin + f1Ymax) / 2]
-      let p5 = p3
+      console.log(measureRes)
+      let p0 = null
+      let p1 = null
+      let p2 = null
+      let p3 = null
+      let p5 = null
       let p4 = null
-      // 第二个股骨头可能不存在
+      if (measureRes.hasOwnProperty('sacrum')) {
+        let sXmin = this.RestoreX(measureRes.sacrum.xmin, scale)
+        let sYmin = this.RestoreY(measureRes.sacrum.ymin, scale, originalHeight)
+        let sXmax = this.RestoreX(measureRes.sacrum.xmax, scale)
+        let sYmax = this.RestoreY(measureRes.sacrum.ymax, scale, originalHeight)
+        p0 = [sXmin, sYmin]
+        p1 = [sXmax, sYmax]
+      }
+      
+      if (measureRes.hasOwnProperty('femoralhead1')) {
+        let f1Xmin = this.RestoreX(measureRes.femoralhead1.xmin, scale)
+        let f1Ymin = this.RestoreY(measureRes.femoralhead1.ymin, scale, originalHeight)
+        let f1Xmax = this.RestoreX(measureRes.femoralhead1.xmax, scale)
+        let f1Ymax = this.RestoreY(measureRes.femoralhead1.ymax, scale, originalHeight)
+        if (p0 && p1) 
+          p2 = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2]
+        p3 = [(f1Xmin + f1Xmax) / 2, (f1Ymin + f1Ymax) / 2]
+        p5 = p3
+        p4 = null
+      }
+      // 第二个股骨头不存在时，及等同于第一个股骨头
       if (measureRes.hasOwnProperty('femoralhead2')) {
         let f2Xmin = this.RestoreX(measureRes.femoralhead2.xmin, scale)
         let f2Ymin = this.RestoreY(measureRes.femoralhead2.ymin, scale, originalHeight)
@@ -275,6 +364,7 @@ export default {
         'p4': p4,
         'p5': p5
       }
+      console.log(parseRes)
       return parseRes
     },
     /* 功能：还原x坐标（由于图片上传时进行了缩小5倍的操作，故需要还原） */

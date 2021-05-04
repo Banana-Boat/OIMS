@@ -55,15 +55,20 @@ export default {
   },
   methods: {
     CalResult (parseRes) {
-      let ss = Math.atan((parseRes.p1[1] - parseRes.p0[1]) / (parseRes.p1[0] - parseRes.p0[0])) *
-                180 / Math.PI
-      let pt = 90.0 - (Math.atan((parseRes.p2[1] - parseRes.p5[1]) / (parseRes.p2[0] - parseRes.p5[0])) *
-                180 / Math.PI)
-      let pi = ss + pt
+      let ss = null
+      let pt = null
+      let pi = null
+      if(parseRes.p1 && parseRes.p0 && parseRes.p5 && parseRes.p2){
+        ss = Math.atan((parseRes.p1[1] - parseRes.p0[1]) / (parseRes.p1[0] - parseRes.p0[0])) *
+                  180 / Math.PI
+        pt = 90.0 - (Math.atan((parseRes.p2[1] - parseRes.p5[1]) / (parseRes.p2[0] - parseRes.p5[0])) *
+                  180 / Math.PI)
+        pi = ss + pt
+      }
       return {
-        'ss': ss.toFixed(2),
-        'pt': pt.toFixed(2),
-        'pi': pi.toFixed(2)
+        'ss': ss ? ss.toFixed(2) : '(识别区域缺失，无法计算)',
+        'pt': pt ? pt.toFixed(2) : '(识别区域缺失，无法计算)',
+        'pi': pi ? pi.toFixed(2) : '(识别区域缺失，无法计算)'
       }
     }
   }

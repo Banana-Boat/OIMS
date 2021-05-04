@@ -134,31 +134,45 @@ export default {
     /* 功能: 对已选图片进行缩小5倍的预处理，并保存在./tmp/img/_preprocess目录下 */
     Preprocess (inputDir, outputDir, selectedArr) {
       let that = this
-      that.preTotalNum = selectedArr.length
+      let targetArr = []  // 选择数组中未被预处理的图片
+
       return new Promise(resolve => {
-        fs.readdir(inputDir, (err, files) => {
-          files.reduce((prev, cur, index) => {
-            return prev.then(res => {
-              return new Promise(resolve => {
-                if (selectedArr.indexOf(files[index]) > -1) {
-                  Jimp.read(inputDir + files[index], (err, img) => {
-                    if (!err) {
-                      img.scale(0.2)
-                      img.writeAsync(outputDir + files[index]).then(res => {
-                        that.preCurNum++
-                        that.prePercentage = Number.parseInt(that.preCurNum / that.preTotalNum * 100)
-                        resolve()
+        fs.readdir(outputDir, (err, existedFiles) => {
+          selectedArr.forEach(file => {
+            if(existedFiles.indexOf(file) == -1)
+              targetArr.push(file)
+          })
+          that.preTotalNum = targetArr.length
+          
+          if(targetArr.length != 0){
+            fs.readdir(inputDir, (err, files) => {
+              files.reduce((prev, cur, index) => {
+                return prev.then(res => {
+                  return new Promise(resolve => {
+                    if (targetArr.indexOf(files[index]) > -1) {
+                      Jimp.read(inputDir + files[index], (err, img) => {
+                        if (!err) {
+                          img.crop(0, img.getHeight() / 2, img.getWidth(), img.getHeight() / 2)
+                          img.scale(0.2)
+                          img.writeAsync(outputDir + files[index]).then(res => {
+                            that.preCurNum++
+                            that.prePercentage = Number.parseInt((that.preCurNum) / that.preTotalNum * 100)
+                            resolve()
+                          })
+                        }
                       })
+                    } else {
+                      resolve()
                     }
                   })
-                } else {
-                  resolve()
-                }
+                })
+              }, Promise.resolve({})).then(() => {
+                resolve(true)
               })
             })
-          }, Promise.resolve({})).then(() => {
+          } else{ 
             resolve(true)
-          })
+          }
         })
       })
     },
@@ -186,7 +200,7 @@ export default {
               that.$refs.sideTable.selection.forEach(item => {
                 fileDirArr.push(preprocessDirPath + item.filename)
               })
-              // that.$emit('StartMeasure', fileDirArr)
+              that.$emit('StartMeasure', fileDirArr)
               that.$notify.info({
                 title: '消息',
                 message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',

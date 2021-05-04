@@ -4,7 +4,8 @@ const state = {
   // 正面图的相关变量
   params1: {
     'dirPath': '', // 文件夹路径
-    'compressDirPath': './tmp/img/front_compress/', // 对比度调整后的保存路径
+    'compressDirPath': './tmp/img/front_compress/', // 图片压缩后的保存路径
+    'preprocessDirPath': './tmp/img/front_preprocess/', // 图片预处理后的保存路径
     'fileList': {}, // 文件列表（用于维护文件列表栏）
     'resList': {}, // 量测结果列表（用于维护图片的量测结果，包含每一项）
     'curFilename': '', // 当前打开的文件文件名
@@ -14,6 +15,7 @@ const state = {
   params2: {
     'dirPath': '',
     'compressDirPath': './tmp/img/side_compress/',
+    'preprocessDirPath': './tmp/img/side_preprocess/',
     'fileList': {},
     'resList': {},
     'curFilename': '',
@@ -21,7 +23,8 @@ const state = {
   },
   selectedImgBox: 1, // 当前选中的图片框
   isMeasuring: false, // 是否在量测中
-  curEntireRes: null // 当前文件整体量测结果（正+侧）
+  curEntireRes: null, // 当前文件整体量测结果（正+侧）
+  resXmlPath: './tmp/xml/result.xml'
 }
 
 const mutations = {
