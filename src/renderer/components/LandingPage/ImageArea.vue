@@ -153,14 +153,14 @@ export default {
                 switch (p.self) {
                   case 'r0':
                     p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
-                    tempResList[curFilename].x1 = p.adLine.x1
-                    tempResList[curFilename].y1 = p.adLine.y1
+                    //tempResList[curFilename].x1 = p.adLine.x1
+                    //tempResList[curFilename].y1 = p.adLine.y1
                     break
                     
                   case 'r1':
                     p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
-                    tempResList[curFilename].x2 = p.adLine.x2
-                    tempResList[curFilename].y2 = p.adLine.y2
+                    //tempResList[curFilename].x2 = p.adLine.x2
+                    //tempResList[curFilename].y2 = p.adLine.y2
                     break
                     
                 }
@@ -171,8 +171,8 @@ export default {
                   'y2':p.adLine.y2
                 }
                 that.$store.commit('ChangTest', {
-                  testx: 300,
-                  texty: 100,
+                  //testx: 300,
+                  //texty: 100,
                   curFilename: curFilename,
                   testList: tempResList
                 })
@@ -182,6 +182,51 @@ export default {
           })
         }
 
+        let rect_width = params.rectList[curFilename].width
+        let rect_height = params.rectList[curFilename].height
+        let rect_left = params.rectList[curFilename].left
+        let rect_top = params.rectList[curFilename].top
+        let rect_angle = params.rectList[curFilename].angle
+
+        if(rect_angle!=null){
+          var rect = new fabric.Rect({
+            'self': 'rect',
+            left: rect_left, top: rect_top,width: rect_width, height: rect_height,  angle: rect_angle,
+            fill: 'rgba(0,200,0,0.5)'
+          });
+          canvas.add(rect)
+          canvas.renderAll()
+          //alert(rect.angle)
+          canvas.on('object:moving', (e) => {
+            if (e.target) {
+              let p = e.target 
+              if (['rect'].includes(p.self)) {
+                //alert(rect.angle)
+                let curFilename = params.curFilename
+                let tempResList = params.rectList
+                //alert(p.get('width'))
+                tempResList[curFilename]={
+                  'left': p.left, 
+                  'top': p.top, 
+                  'width': p.width, 
+                  'height': p.height, 
+                  'angle': p.angle
+                }
+                //alert(p.width)
+                that.$store.commit('ChangRect', {
+                  //testx: 300,
+                  //texty: 100,
+                  curFilename: curFilename,
+                  rectList: tempResList
+                })
+                
+                //alert(1)
+                that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
+              }
+            }
+          })
+        }
+        
         // 若图像已被量测，则解析数据并绘制图线
         if (imgInfo.isMeasured) {
           let parseRes = {}

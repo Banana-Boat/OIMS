@@ -26,7 +26,7 @@
       </div>
     </el-tooltip>
     <el-tooltip content="绘制矩形" placement="bottom-start" :open-delay=700 effect="light">
-      <div id="drawRectangleBtn" class="sub-tool-btn">
+      <div id="drawRectangleBtn" class="sub-tool-btn" @click="PaintRect">
         <img src="../../assets/btn-icon/rectangle.svg">
       </div>
     </el-tooltip>
@@ -55,19 +55,60 @@ export default {
       let params = flag==1? this.$store.state.File.params1 : this.$store.state.File.params2
       let curFilename = params.curFilename
       let tempList = params.testList
-      tempList[curFilename]={
+      if (tempList[curFilename].x1 == null){
+        tempList[curFilename]={
         'x1':100,
         'y1':100,
         'x2':200,
         'y2':200
+        }
       }
-      alert(curFilename)
+      else{
+        tempList[curFilename]={
+        'x1':null,
+        'y1':null,
+        'x2':null,
+        'y2':null
+        }
+      }
+      
+      //alert(curFilename)
       this.$store.commit('ChangTest', {
           flag: flag,
-          testx: 300,
-          texty: 100,
+          //testx: 300,
+          //texty: 100,
           curFilename: curFilename,
           testList: tempList
+      })
+    },
+    PaintRect(){
+      let flag = this.$store.state.File.selectedImgBox
+      let params = flag==1? this.$store.state.File.params1 : this.$store.state.File.params2
+      let curFilename = params.curFilename
+      let rectList = params.rectList
+
+      if (rectList[curFilename].width == null){
+        rectList[curFilename]={
+          'width': 100, 
+          'height': 100, 
+          'left': 100, 
+          'top': 100, 
+          'angle': 0
+        }
+      }
+      else{
+        rectList[curFilename]={
+          'width': null, 
+          'height': null, 
+          'left': null, 
+          'top': null, 
+          'angle': null
+        }
+      }
+      this.$store.commit('ChangRect', {
+          flag: flag,
+          curFilename: curFilename,
+          rectList: rectList
       })
     }
   }

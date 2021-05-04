@@ -9,9 +9,10 @@ const state = {
     'resList': {}, // 量测结果列表（用于维护图片的量测结果，包含每一项）
     'curFilename': '', // 当前打开的文件文件名
     'canvasData': null, // 画布
-    'testx':'',
-    'testy':'',
-    'testList':{}  //绘制直线参数
+    //'testx':'',
+    //'testy':'',
+    'testList':{},  //绘制直线参数
+    'rectList':{}
   },
   // 侧面图的相关变量
   params2: {
@@ -21,7 +22,8 @@ const state = {
     'resList': {},
     'curFilename': '',
     'canvasData': null,
-    'testList':{}
+    'testList':{},
+    'rectList':{}
   },
   selectedImgBox: 1, // 当前选中的图片框
   isMeasuring: false, // 是否在量测中
@@ -29,11 +31,16 @@ const state = {
 }
 
 const mutations = {
+  ChangRect(state,payload){
+    var params = payload.flag ==1? state.params1 : state.params2
+    params.rectList=payload.rectList
+    //alert(payload.rectList[payload.curFilename].angle)
+  },
   ChangTest(state,payload){
     //alert(payload.testList[payload.curFilename].x1)
     var params = payload.flag == 1? state.params1 : state.params2
-    params.testx=payload.testx
-    params.testy=payload.testy
+    //params.testx=payload.testx
+    //params.testy=payload.testy
     params.testList=payload.testList
     //alert(payload.testList[payload.curFilename].x1)
   },
