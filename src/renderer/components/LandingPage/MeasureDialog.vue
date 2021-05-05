@@ -46,9 +46,11 @@
     2. 侧面图选择列表
     3. 图片预处理进度条、量测按钮 */
 
-// const {compress} = require('compress-images/promise')
 const fs = require('fs')
 const Jimp = require('jimp')
+const imagemin = require("imagemin")
+const imageminJpegtran = require('imagemin-jpegtran')
+const imageminMozjpeg = require("imagemin-mozjpeg")
 
 export default {
   props: ['isShowDialog'],
@@ -117,18 +119,16 @@ export default {
     /* 功能：压缩所有原图并保存在./tmp/img/_compress目录下 */
     Compress (inputDir, outputDir) {
       return new Promise((resolve, reject) => {
-        // let source = inputDir.replace(/\\/g, '/') + '/*.{jpg,JPG,jpeg,JPEG}'
-        // let res = compress({
-        //   source: source,
-        //   destination: outputDir,
-        //   enginesSetup: {
-        //     jpg: {engine: 'mozjpeg', command: ['-quality', '10']},
-        //     png: {engine: false, command: false},
-        //     svg: {engine: false, command: false},
-        //     gif: {engine: false, command: false}
-        //   }
-        // })
-        resolve(res)
+        imagemin([inputDir.replace(/\\/g, '/') + '/*.{jpg,png}'], {
+          destination: outputDir,
+          plugins: [
+            imageminMozjpeg({quality: 15})
+            // imageminJpegtran({quality: 0.3})
+          ]
+        }).then(res => {
+          console.log('compression finished!' + res.length)
+          resolve(true)
+        })
       })
     },
     /* 功能: 对已选图片进行缩小5倍的预处理，并保存在./tmp/img/_preprocess目录下 */
@@ -190,8 +190,9 @@ export default {
       let dirPath = params.dirPath
       let compressDirPath = params.compressDirPath
       let preprocessDirPath = params.preprocessDirPath
+      
       that.Compress(dirPath, compressDirPath).then((res) => {
-        if (res.errors.length == 0) {
+        if (res) {
           that.Preprocess(compressDirPath, preprocessDirPath, selectedArr).then(res => {
             if (res) {
               that.$store.commit('ChangeMeasureState', {isMeasuring: true})
