@@ -1,12 +1,12 @@
 {
   "name": "oims",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Banana-Boat <937499953@qq.com>",
   "description": "An electron-vue project",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
-    "build": "node .electron-vue/build.js && electron-builder",
+    "build": "node .electron-vue/build.js && electron-builder --win",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
@@ -22,8 +22,8 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "oims",
-    "appId": "com.example.yourapp",
+    "productName": "AI骨尺",
+    "appId": "com.oims.ai_bone_ruler",
     "directories": {
       "output": "build"
     },
@@ -45,25 +45,39 @@
         }
       ]
     },
-    "mac": {
-      "icon": "build/icons/icon.icns"
-    },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/ai_bone_ruler.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
-    "linux": {
-      "icon": "build/icons"
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true, 
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "./build/icons/ai_bone_ruler.ico",
+      "uninstallerIcon": "./build/icons/uninstall.ico",
+      "installerHeaderIcon": "./build/icons/ai_bone_ruler.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AI骨尺",
+      "include": "build/script/installer.nsh"
     }
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "canvas": "^2.7.0",
     "compress-images": "^1.9.9",
     "element-ui": "^2.15.0",
     "fabric": "^4.3.1",
     "fast-xml-parser": "^3.18.0",
     "font-awesome": "^4.7.0",
     "imagemin": "^7.0.0",
-    "imagemin-jpegtran": "^7.0.0",
     "imagemin-mozjpeg": "^6.0.0",
     "jimp": "^0.16.1",
     "jspdf": "^2.3.0",

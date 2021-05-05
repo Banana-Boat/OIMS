@@ -49,7 +49,6 @@
 const fs = require('fs')
 const Jimp = require('jimp')
 const imagemin = require("imagemin")
-const imageminJpegtran = require('imagemin-jpegtran')
 const imageminMozjpeg = require("imagemin-mozjpeg")
 
 export default {
@@ -123,7 +122,6 @@ export default {
           destination: outputDir,
           plugins: [
             imageminMozjpeg({quality: 15})
-            // imageminJpegtran({quality: 0.3})
           ]
         }).then(res => {
           console.log('compression finished!' + res.length)
