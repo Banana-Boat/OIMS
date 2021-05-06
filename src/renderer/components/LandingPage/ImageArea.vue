@@ -104,12 +104,13 @@ export default {
 
         let params = flag==1? this.$store.state.File.params1: this.$store.state.File.params2
         let curFilename = params.curFilename
-        let textx1 = params.testList[curFilename].x1
-        let texty1 = params.testList[curFilename].y1
-        let textx2 = params.testList[curFilename].x2
-        let texty2 = params.testList[curFilename].y2
         
-        if( textx1 != null ) {  //绘制直线
+        
+        if( params.testList[curFilename].x1 != null ) {  //绘制直线
+          let textx1 = params.testList[curFilename].x1
+          let texty1 = params.testList[curFilename].y1
+          let textx2 = params.testList[curFilename].x2
+          let texty2 = params.testList[curFilename].y2
           let lineAttr = {  // 绘制直线的属性
             fill: 'blue',
             stroke: 'blue',
@@ -173,13 +174,12 @@ export default {
           })
         }
 
-        let rect_width = params.rectList[curFilename].width
-        let rect_height = params.rectList[curFilename].height
-        let rect_left = params.rectList[curFilename].left
-        let rect_top = params.rectList[curFilename].top
-        let rect_angle = params.rectList[curFilename].angle
-
-        if(rect_angle!=null){  //绘制矩形
+        if(params.rectList[curFilename].angle!=null){  //绘制矩形
+          let rect_width = params.rectList[curFilename].width
+          let rect_height = params.rectList[curFilename].height
+          let rect_left = params.rectList[curFilename].left
+          let rect_top = params.rectList[curFilename].top
+          let rect_angle = params.rectList[curFilename].angle
           var rect = new fabric.Rect({
             'self': 'rect',
             left: rect_left, top: rect_top,width: rect_width, height: rect_height,  angle: rect_angle,
