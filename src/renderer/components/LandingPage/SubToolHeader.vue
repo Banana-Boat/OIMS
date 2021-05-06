@@ -49,8 +49,8 @@
   次级顶部工具栏组件，包括各类对图像编辑操作的工具 */
 export default {
   methods:{
+    /*绘制直线，如果已存在清除，如果不存在初始化一条直线*/
     Test(){
-      //alert("ok")
       let flag = this.$store.state.File.selectedImgBox
       let params = flag==1? this.$store.state.File.params1 : this.$store.state.File.params2
       let curFilename = params.curFilename
@@ -71,16 +71,13 @@ export default {
         'y2':null
         }
       }
-      
-      //alert(curFilename)
       this.$store.commit('ChangTest', {
           flag: flag,
-          //testx: 300,
-          //texty: 100,
           curFilename: curFilename,
           testList: tempList
       })
     },
+    /*绘制矩形，如果已存在清除，如果不存在初始化一个矩形*/
     PaintRect(){
       let flag = this.$store.state.File.selectedImgBox
       let params = flag==1? this.$store.state.File.params1 : this.$store.state.File.params2

@@ -109,9 +109,7 @@ export default {
         let textx2 = params.testList[curFilename].x2
         let texty2 = params.testList[curFilename].y2
         
-        if( textx1 != null ) {
-          //var red = new fabric.Circle({ radius: 5, fill: '#f55', top: textx1, left: texty1 })
-          //var red1 = new fabric.Circle({ radius: 5, fill: '#f55', top: textx2, left: texty2 })
+        if( textx1 != null ) {  //绘制直线
           let lineAttr = {  // 绘制直线的属性
             fill: 'blue',
             stroke: 'blue',
@@ -147,20 +145,15 @@ export default {
             if (e.target) {
               let p = e.target 
               if (['r0','r1'].includes(p.self)) {
-                //alert('daa')
                 let curFilename = params.curFilename
                 let tempResList = params.testList
                 switch (p.self) {
                   case 'r0':
                     p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
-                    //tempResList[curFilename].x1 = p.adLine.x1
-                    //tempResList[curFilename].y1 = p.adLine.y1
                     break
                     
                   case 'r1':
                     p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
-                    //tempResList[curFilename].x2 = p.adLine.x2
-                    //tempResList[curFilename].y2 = p.adLine.y2
                     break
                     
                 }
@@ -171,8 +164,6 @@ export default {
                   'y2':p.adLine.y2
                 }
                 that.$store.commit('ChangTest', {
-                  //testx: 300,
-                  //texty: 100,
                   curFilename: curFilename,
                   testList: tempResList
                 })
@@ -188,7 +179,7 @@ export default {
         let rect_top = params.rectList[curFilename].top
         let rect_angle = params.rectList[curFilename].angle
 
-        if(rect_angle!=null){
+        if(rect_angle!=null){  //绘制矩形
           var rect = new fabric.Rect({
             'self': 'rect',
             left: rect_left, top: rect_top,width: rect_width, height: rect_height,  angle: rect_angle,
@@ -196,15 +187,12 @@ export default {
           });
           canvas.add(rect)
           canvas.renderAll()
-          //alert(rect.angle)
           canvas.on('object:moving', (e) => {
             if (e.target) {
               let p = e.target 
               if (['rect'].includes(p.self)) {
-                //alert(rect.angle)
                 let curFilename = params.curFilename
                 let tempResList = params.rectList
-                //alert(p.get('width'))
                 tempResList[curFilename]={
                   'left': p.left, 
                   'top': p.top, 
@@ -212,15 +200,11 @@ export default {
                   'height': p.height, 
                   'angle': p.angle
                 }
-                //alert(p.width)
                 that.$store.commit('ChangRect', {
-                  //testx: 300,
-                  //texty: 100,
                   curFilename: curFilename,
                   rectList: tempResList
                 })
                 
-                //alert(1)
                 that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
               }
             }
