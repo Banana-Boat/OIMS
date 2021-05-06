@@ -124,6 +124,7 @@ export default {
             imageminMozjpeg({quality: 15})
           ]
         }).then(res => {
+          console.log(res)
           console.log('compression finished!' + res.length)
           resolve(true)
         })
@@ -147,7 +148,7 @@ export default {
               files.reduce((prev, cur, index) => {
                 return prev.then(res => {
                   return new Promise(resolve => {
-                    if (targetArr.indexOf(files[index]) > -1) {
+                    if (targetArr.indexOf(files[index]) > -1) { 
                       Jimp.read(inputDir + files[index], (err, img) => {
                         if (!err) {
                           img.crop(0, img.getHeight() / 2, img.getWidth(), img.getHeight() / 2)

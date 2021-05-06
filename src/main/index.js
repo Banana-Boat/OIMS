@@ -25,6 +25,9 @@ function createWindow () {
       webSecurity: false
     }
   })
+  // 打开调试窗口！！！
+  mainWindow.webContents.openDevTools()
+
   Menu.setApplicationMenu(null)
   mainWindow.maximize()
   mainWindow.show()

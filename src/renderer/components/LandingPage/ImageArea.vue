@@ -229,79 +229,83 @@ export default {
                 let tempResList = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList))
                 switch (p.self) {
                   case 'p0':
+                    if(p.adLine){ // 区别四个选择分支
+                      p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
+                      tempResList[curFilename].parseRes.p0 = [p.adLine.x1, p.adLine.y1]
+                    }
+
+                    if(p.centerP && p.adLine)
+                      p.centerP.set({
+                        left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
+                        top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
+                      })
+
+                    if(p.centerLine && p.centerP)
+                      p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
+                      
                     if(tempResList[curFilename].parseRes.p2 && p.centerP) // 区别四个选择分支
                       tempResList[curFilename].parseRes.p2 = [p.centerP.left, p.centerP.top]
 
-                    if(p.adLine){ // 区别四个选择分支
-                      tempResList[curFilename].parseRes.p0 = [p.adLine.x1, p.adLine.y1]
-                      p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
+                    break
+                  case 'p1':
+                    if(p.adLine){
+                      p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
+                      tempResList[curFilename].parseRes.p1 = [p.adLine.x2, p.adLine.y2]
                     }
 
-                    if(p.centerP)
+                    if(p.centerP && p.adLine)
                       p.centerP.set({
                         left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
                         top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
                       })
 
-                    if(p.centerLine)
+                    if(p.centerLine && p.centerP)
                       p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
-
-                    break
-                  case 'p1':
+                      
                     if(tempResList[curFilename].parseRes.p2 && p.centerP)
                       tempResList[curFilename].parseRes.p2 = [p.centerP.left, p.centerP.top]
 
-                    if(p.adLine){
-                      tempResList[curFilename].parseRes.p1 = [p.adLine.x2, p.adLine.y2]
-                      p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
-                    }
-
-                    if(p.centerP)
-                      p.centerP.set({
-                        left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
-                        top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
-                      })
-
-                    if(p.centerLine)
-                      p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
-
                     break
                   case 'p3':
-                    if(tempResList[curFilename].parseRes.p2 && p.centerP)
-                      tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
-
                     if(p.adLine){
-                      tempResList[curFilename].parseRes.p3 = [p.adLine.x1, p.adLine.y1]
                       p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
+                      tempResList[curFilename].parseRes.p3 = [p.adLine.x1, p.adLine.y1]
                     }
 
-                    if(p.centerP)
+                    if(p.centerP && p.adLine){
                       p.centerP.set({
                         left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
                         top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
                       })
+                    }
+                      
+                    if(p.centerLine && p.centerP)
+                      p.centerLine.set({'x2': p.centerP.left + pRadius, 'y2': p.centerP.top + pRadius})
 
-                    if(p.centerLine)
-                      p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
+                    if(tempResList[curFilename].parseRes.p5 && p.centerP)
+                      tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
+
 
                     break
                   case 'p4':
-                    if(tempResList[curFilename].parseRes.p2 && p.centerP)
-                      tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
-
                     if(p.adLine){
-                      tempResList[curFilename].parseRes.p4 = [p.adLine.x2, p.adLine.y2]
                       p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
+                      tempResList[curFilename].parseRes.p4 = [p.adLine.x2, p.adLine.y2]
                     }
 
-                    if(p.centerP)
+                    if(p.centerP){
                       p.centerP.set({
                         left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
                         top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
                       })
+                    }
 
-                    if(p.centerLine)
-                      p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
+                    if(p.centerLine && p.centerP)
+                      p.centerLine.set({'x2': p.centerP.left + pRadius, 'y2': p.centerP.top + pRadius})
+                    
+                    if(tempResList[curFilename].parseRes.p5 && p.centerP)
+                      tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
+
 
                     break
                 }

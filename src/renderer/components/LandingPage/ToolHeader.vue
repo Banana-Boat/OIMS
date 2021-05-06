@@ -106,7 +106,7 @@ export default {
   mounted () {
     let that = this
     // 测试代码！！！读取并显示本地保存的测量结果，渲染至页面
-    // fs.readFile('./tmp/xml/result1.xml', 'utf-8', (err, res) => {
+    // fs.readFile('./tmp/xml/result.xml', 'utf-8', (err, res) => {
     //   let imgList = parser.parse(res)['image-list']['image']
     //   if (!Array.isArray(imgList)) {
     //     imgList = [imgList]
@@ -228,7 +228,7 @@ export default {
                 console.log(res.data.data)
                 let data = window.atob(res.data.data) // 将base64字符串转换为utf-8
 
-                fs.writeFile(this.$store.state.File.resXmlPath, err => {  // 将识别结果写入本地
+                fs.writeFile(this.$store.state.File.resXmlPath,data, err => {  // 将识别结果写入本地
                   console.error(err)
                 })
 
