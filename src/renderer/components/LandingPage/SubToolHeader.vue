@@ -55,7 +55,7 @@ export default {
       let params = flag==1? this.$store.state.File.params1 : this.$store.state.File.params2
       let curFilename = params.curFilename
       let tempList = params.testList
-      if (tempList[curFilename].x1 == null){
+      if (tempList[curFilename].x1){
         tempList[curFilename]={
         'x1':100,
         'y1':100,
@@ -84,7 +84,7 @@ export default {
       let curFilename = params.curFilename
       let rectList = params.rectList
 
-      if (rectList[curFilename].width == null){
+      if (rectList[curFilename]){
         rectList[curFilename]={
           'width': 100, 
           'height': 100, 

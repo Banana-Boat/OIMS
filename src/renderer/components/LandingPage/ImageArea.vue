@@ -106,7 +106,7 @@ export default {
         let curFilename = params.curFilename
         
         
-        if( params.testList[curFilename].x1 != null ) {  //绘制直线
+        if( params.testList[curFilename]) {  //绘制直线
           let textx1 = params.testList[curFilename].x1
           let texty1 = params.testList[curFilename].y1
           let textx2 = params.testList[curFilename].x2
@@ -168,13 +168,14 @@ export default {
                   curFilename: curFilename,
                   testList: tempResList
                 })
+                canvas.renderAll()
                 that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
               }
             }
           })
         }
 
-        if(params.rectList[curFilename].angle!=null){  //绘制矩形
+        if(params.rectList[curFilename]){  //绘制矩形
           let rect_width = params.rectList[curFilename].width
           let rect_height = params.rectList[curFilename].height
           let rect_left = params.rectList[curFilename].left
@@ -204,7 +205,7 @@ export default {
                   curFilename: curFilename,
                   rectList: tempResList
                 })
-                
+                canvas.renderAll()
                 that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
               }
             }
