@@ -72,6 +72,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "canvas": "^2.7.0",
+    "draggable-vue-directive": "^2.1.0",
     "electron-debug": "^3.2.0",
     "electron-devtools-installer": "^3.2.0",
     "element-ui": "^2.15.0",

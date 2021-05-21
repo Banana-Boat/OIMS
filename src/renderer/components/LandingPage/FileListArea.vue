@@ -17,7 +17,7 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column prop="oper" min-width="30" align="right" fixed="right">
+        <el-table-column prop="oper" min-width="30" align="right">
           <template slot-scope="scope">
             <i class="fa fa-check measured-icon" v-if="scope.row.isMeasured"></i>
           </template>
@@ -41,7 +41,7 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column min-width="35" align="right" fixed="right">
+        <el-table-column min-width="35" align="right">
           <template slot-scope="scope">
             <i class="fa fa-check measured-icon" v-if="scope.row.isMeasured"></i>
           </template>
@@ -146,17 +146,15 @@ export default {
     background: #f0f9eb;
   }
   // 文件列表栏
-  @file_list_area_height_ratio: 45%;
   .file-list-area-content{
     display: flex;    
-    flex-direction: row;
-    justify-content: space-around;
-    margin: 8px 4px 8px 4px;
-    height: @file_list_area_height_ratio;
+    flex-direction: column;
+    width: 50%;
+    justify-content: space-between;
+    margin: 8px 8px 8px 4px;
   }
   .file-list-box{
-    flex: 1 0 40%;
-    margin: 0px 4px 0px 4px;
+    height: 49%;
   }
   .file-list-header{
     display: flex;

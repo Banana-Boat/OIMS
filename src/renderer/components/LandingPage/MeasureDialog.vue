@@ -189,6 +189,23 @@ export default {
       let dirPath = params.dirPath
       let compressDirPath = params.compressDirPath
       let preprocessDirPath = params.preprocessDirPath
+
+      // !!!测试代码
+      that.$store.commit('ChangeMeasureState', {isMeasuring: true})
+      let fileDirArr = []
+      that.$refs.sideTable.selection.forEach(item => {
+        fileDirArr.push(preprocessDirPath + item.filename)
+      })
+      that.$emit('StartMeasure', fileDirArr)
+      that.$notify.info({
+        title: '消息',
+        message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
+        duration: 3500,
+        position: 'bottom-left'
+      })
+
+      that.isPreprocessing = false
+      that.Close()
       
       that.Compress(dirPath, compressDirPath).then((res) => {
         if (res) {
@@ -222,6 +239,7 @@ export default {
           that.Close()
         }
       })
+    
     },
     Close () {
       this.$emit('CloseDialog')

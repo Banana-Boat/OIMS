@@ -28,7 +28,7 @@
     padding: 15px 20px !important;
   }
   .el-card__body{
-    padding: 0 !important;
+    padding: 12px !important;
   }
   
   .el-divider{

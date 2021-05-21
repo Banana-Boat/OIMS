@@ -162,6 +162,7 @@ export default {
     /* 功能：通过图片选择窗口回传的图片路径数组，将图片逐个以base64格式读取，
             打包为json上传。 */
     StartMeasure (fileDirArr) {
+      // 测试代码！！！读取并显示本地保存的测量结果，渲染至页面
       // let that = this
       // fs.readFile('./tmp/xml/result.xml', 'utf-8', (err, res) => {
       //   let imgList = parser.parse(res)['image-list']['image']
@@ -174,17 +175,6 @@ export default {
       //   that.WriteToFileList(1, imgList)
       //   that.WriteToFileList(2, imgList)
       // })
-
-      // let that = this
-      // let data = window.atob(res.data.data)
-      // let imgList = parser.parse(data)['image-list']['image']
-      // if (!Array.isArray(imgList)) {
-      //   imgList = [imgList]
-      // }
-      // that.WriteToResultList(2, imgList)
-      // // that.WriteToResultList(1, imgList) // 正面图待完善
-      // that.WriteToFileList(1, imgList)
-      // that.WriteToFileList(2, imgList)
 
       let that = this
       let jsonData = []
@@ -243,6 +233,7 @@ export default {
                 
                 clearInterval(that.measureInterval)
                 this.$store.commit('ChangeMeasureState', {isMeasuring: false})
+                this.$store.commit('ChangeIsShowResultBoxState', {isShowResultBox: true})
                 this.$notify.success({
                   title: '成功',
                   message: '量测已完成，总耗时' + Math.ceil(totalTime / 60) + '分钟',

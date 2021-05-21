@@ -24,7 +24,8 @@ const state = {
   selectedImgBox: 1, // 当前选中的图片框
   isMeasuring: false, // 是否在量测中
   curEntireRes: null, // 当前文件整体量测结果（正+侧）
-  resXmlPath: './tmp/xml/result.xml'
+  resXmlPath: './tmp/xml/result.xml',
+  isShowResultBox: false //是否显示结果面板
 }
 
 const mutations = {
@@ -66,6 +67,10 @@ const mutations = {
   // 改变量测状态
   ChangeMeasureState (state, payload) {
     state.isMeasuring = payload.isMeasuring
+  },
+  // 改变显示结果面板的状态
+  ChangeIsShowResultBoxState (state, payload) {
+    state.isShowResultBox = payload.isShowResultBox
   }
 }
 

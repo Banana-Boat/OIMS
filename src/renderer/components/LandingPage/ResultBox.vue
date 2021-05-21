@@ -1,18 +1,25 @@
 <template>
-  <el-card class="result-box-content">
-    <div slot="header">
-      <span class="result-title">量测结果</span>
+  <div v-draggable class="result-box" v-if="isShowResultBox">
+    <div class="header-box">
+      <span class="header-text">量测结果</span>
+      <i class="fa fa-close close-icon" @click="Close"></i>
     </div>
-    <div class="result-content" v-if="isParsed2">
+    <div class="content-box" v-if="isParsed2">
       <div>ss: {{result.ss}}</div>
       <div>pt: {{result.pt}}</div>
       <div>pi: {{result.pi}}</div>
     </div>
-  </el-card>
+  </div>
 </template>
 
 <script>
+import { Draggable } from 'draggable-vue-directive'
+
 export default {
+  directives: {
+      Draggable,
+  },
+  props: ['isShowResultBox'],
   data () {
     return {
       result: {
@@ -70,24 +77,56 @@ export default {
         'pt': pt ? pt.toFixed(2) : '(识别区域缺失，无法计算)',
         'pi': pi ? pi.toFixed(2) : '(识别区域缺失，无法计算)'
       }
+    },
+    Close () {
+      this.$emit('CloseResultBox')
     }
   }
 }
 </script>
 
 <style lang="less">
-  @result_box_height_ratio: 55%;
   // 量测结果栏
-  .result-box-content{
-    margin: 8px 8px 0px 8px;
-    height: @result_box_height_ratio;
+  .result-box{
+    z-index: 100;
+    width: 20vw;
+    height: 50vh;
+    cursor: move;
+
+    background-color: #FFF;
+    border: 1px solid #EBEEF5;
+    box-shadow: 6px 6px 20px 0px #dddddd;
+    border-radius: 5px;
   }
-  .result-title{
+  .result-box:hover{
+    transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition-duration: 250ms;
+    transform: scale(1.04);
+    box-shadow: 10px 10px 30px 0px #cfcfcf;
+    border-radius: 10px;
+  }
+  .header-box{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 15px 20px ;
+    border-bottom: 1px solid #EBEEF5;
+  }
+  .header-text{
     font-size: 1.1rem;
     font-weight: bold;
     color: black;
   }
-  .result-content{
+  .close-icon{
+    zoom: 1.1;
+    align-self: center;
+    color: rgb(168, 168, 168);
+  }
+  .close-icon:hover{
+    cursor: pointer;
+    color: rgb(240, 106, 106);
+  }
+  .content-box{
     padding: 20px;
   }
 </style>

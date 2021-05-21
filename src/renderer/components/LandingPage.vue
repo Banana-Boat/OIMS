@@ -5,15 +5,12 @@
     </div>
     <div class="main-content">
       <div class="main-panel">
-        <div class="sub-tool-header">
-          <sub-tool-header></sub-tool-header>
-        </div>
         <div class="img-area">
           <image-area></image-area>
         </div>
       </div>
       <div class="side-panel">
-        <result-box></result-box>        
+        <side-tool-area></side-tool-area>       
         <file-list-area></file-list-area>
       </div>
     </div>
@@ -22,7 +19,7 @@
 
 <script>
 import Toolheader from './LandingPage/ToolHeader'
-import SubToolHeader from './LandingPage/SubToolHeader'
+import SideToolArea from './LandingPage/SideToolArea'
 import ResultBox from './LandingPage/ResultBox'
 import FileListArea from './LandingPage/FileListArea'
 import ImageArea from './LandingPage/ImageArea'
@@ -30,7 +27,7 @@ import ImageArea from './LandingPage/ImageArea'
 export default {
   components: {
     'tool-header': Toolheader,
-    'sub-tool-header': SubToolHeader,
+    'side-tool-area': SideToolArea,
     'result-box': ResultBox,
     'file-list-area': FileListArea,
     'image-area': ImageArea
@@ -44,7 +41,6 @@ export default {
 
 <style lang="less">
   @tool_header_height: 52px;
-  @sub_tool_header_height: 36px;
   .main-container{
     display: flex;
     flex-direction: column;
@@ -53,9 +49,6 @@ export default {
   }
   .tool-header{
     flex: 0 0 @tool_header_height;
-  }
-  .sub-tool-header{
-    flex: 0 0 @sub_tool_header_height;
   }
   .main-content{
     flex: 1 1 auto;
@@ -71,11 +64,11 @@ export default {
   .img-area{
     flex: 1 1 auto;
     height: 100%;
-    padding: 10px;
+    padding: 15px 10px;
   }
   .side-panel{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     width: 30%;
     background: #f0f2f3;
     box-shadow: -4px 80px 10px #bcbcbc;
