@@ -1,0 +1,133 @@
+$flaticon-font: "flaticon";
+
+@font-face {
+    font-family: $flaticon-font;
+    src: url("./flaticon.ttf?f959e5f9d4d504c073cd4b8b899a95c9") format("truetype"),
+url("./flaticon.woff?f959e5f9d4d504c073cd4b8b899a95c9") format("woff"),
+url("./flaticon.woff2?f959e5f9d4d504c073cd4b8b899a95c9") format("woff2"),
+url("./flaticon.eot?f959e5f9d4d504c073cd4b8b899a95c9#iefix") format("embedded-opentype"),
+url("./flaticon.svg?f959e5f9d4d504c073cd4b8b899a95c9#flaticon") format("svg");
+}
+
+i[class^="flaticon-"]:before, i[class*=" flaticon-"]:before {
+    font-family: flaticon !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+$flaticon-map: (
+    "brightness": "\f101",
+    "vertical-alignment": "\f102",
+    "scale": "\f103",
+    "ruler": "\f104",
+    "rotate": "\f105",
+    "rotate-1": "\f106",
+    "macro": "\f107",
+    "vertical": "\f108",
+    "horizontal": "\f109",
+    "flash": "\f10a",
+    "daylight": "\f10b",
+    "coloring-tool": "\f10c",
+    "brightness-1": "\f10d",
+    "right": "\f10e",
+    "brightness-2": "\f10f",
+    "pin": "\f110",
+    "font": "\f111",
+    "compass": "\f112",
+    "zoom-out": "\f113",
+    "zoom-in": "\f114",
+    "triangular-ruler": "\f115",
+    "selection": "\f116",
+    "nodes": "\f117",
+    "ruler-1": "\f118",
+    "eraser": "\f119",
+    "nodes-1": "\f11a",
+    "undo": "\f11b",
+);
+
+.flaticon-brightness:before {
+    content: map-get($flaticon-map, "brightness");
+}
+.flaticon-vertical-alignment:before {
+    content: map-get($flaticon-map, "vertical-alignment");
+}
+.flaticon-scale:before {
+    content: map-get($flaticon-map, "scale");
+}
+.flaticon-ruler:before {
+    content: map-get($flaticon-map, "ruler");
+}
+.flaticon-rotate:before {
+    content: map-get($flaticon-map, "rotate");
+}
+.flaticon-rotate-1:before {
+    content: map-get($flaticon-map, "rotate-1");
+}
+.flaticon-macro:before {
+    content: map-get($flaticon-map, "macro");
+}
+.flaticon-vertical:before {
+    content: map-get($flaticon-map, "vertical");
+}
+.flaticon-horizontal:before {
+    content: map-get($flaticon-map, "horizontal");
+}
+.flaticon-flash:before {
+    content: map-get($flaticon-map, "flash");
+}
+.flaticon-daylight:before {
+    content: map-get($flaticon-map, "daylight");
+}
+.flaticon-coloring-tool:before {
+    content: map-get($flaticon-map, "coloring-tool");
+}
+.flaticon-brightness-1:before {
+    content: map-get($flaticon-map, "brightness-1");
+}
+.flaticon-right:before {
+    content: map-get($flaticon-map, "right");
+}
+.flaticon-brightness-2:before {
+    content: map-get($flaticon-map, "brightness-2");
+}
+.flaticon-pin:before {
+    content: map-get($flaticon-map, "pin");
+}
+.flaticon-font:before {
+    content: map-get($flaticon-map, "font");
+}
+.flaticon-compass:before {
+    content: map-get($flaticon-map, "compass");
+}
+.flaticon-zoom-out:before {
+    content: map-get($flaticon-map, "zoom-out");
+}
+.flaticon-zoom-in:before {
+    content: map-get($flaticon-map, "zoom-in");
+}
+.flaticon-triangular-ruler:before {
+    content: map-get($flaticon-map, "triangular-ruler");
+}
+.flaticon-selection:before {
+    content: map-get($flaticon-map, "selection");
+}
+.flaticon-nodes:before {
+    content: map-get($flaticon-map, "nodes");
+}
+.flaticon-ruler-1:before {
+    content: map-get($flaticon-map, "ruler-1");
+}
+.flaticon-eraser:before {
+    content: map-get($flaticon-map, "eraser");
+}
+.flaticon-nodes-1:before {
+    content: map-get($flaticon-map, "nodes-1");
+}
+.flaticon-undo:before {
+    content: map-get($flaticon-map, "undo");
+}

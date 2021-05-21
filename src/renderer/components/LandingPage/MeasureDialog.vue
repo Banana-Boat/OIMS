@@ -206,39 +206,40 @@ export default {
 
       that.isPreprocessing = false
       that.Close()
+      // !!!!!!!!!!!!!!!!!!!!
       
-      that.Compress(dirPath, compressDirPath).then((res) => {
-        if (res) {
-          that.Preprocess(compressDirPath, preprocessDirPath, selectedArr).then(res => {
-            if (res) {
-              that.$store.commit('ChangeMeasureState', {isMeasuring: true})
-              let fileDirArr = []
-              let preprocessDirPath = that.$store.state.File.params2.preprocessDirPath
-              that.$refs.sideTable.selection.forEach(item => {
-                fileDirArr.push(preprocessDirPath + item.filename)
-              })
-              that.$emit('StartMeasure', fileDirArr)
-              that.$notify.info({
-                title: '消息',
-                message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
-                duration: 3500,
-                position: 'bottom-left'
-              })
+      // that.Compress(dirPath, compressDirPath).then((res) => {
+      //   if (res) {
+      //     that.Preprocess(compressDirPath, preprocessDirPath, selectedArr).then(res => {
+      //       if (res) {
+      //         that.$store.commit('ChangeMeasureState', {isMeasuring: true})
+      //         let fileDirArr = []
+      //         let preprocessDirPath = that.$store.state.File.params2.preprocessDirPath
+      //         that.$refs.sideTable.selection.forEach(item => {
+      //           fileDirArr.push(preprocessDirPath + item.filename)
+      //         })
+      //         that.$emit('StartMeasure', fileDirArr)
+      //         that.$notify.info({
+      //           title: '消息',
+      //           message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
+      //           duration: 3500,
+      //           position: 'bottom-left'
+      //         })
 
-              that.isPreprocessing = false
-              that.Close()
-            } else {
-              that.$message.error('图片预处理出错，请稍后重试')
-              that.isPreprocessing = false
-              that.Close()
-            }
-          })
-        } else {
-          that.$message.error('图片预处理出错，请稍后重试')
-          that.isPreprocessing = false
-          that.Close()
-        }
-      })
+      //         that.isPreprocessing = false
+      //         that.Close()
+      //       } else {
+      //         that.$message.error('图片预处理出错，请稍后重试')
+      //         that.isPreprocessing = false
+      //         that.Close()
+      //       }
+      //     })
+      //   } else {
+      //     that.$message.error('图片预处理出错，请稍后重试')
+      //     that.isPreprocessing = false
+      //     that.Close()
+      //   }
+      // })
     
     },
     Close () {

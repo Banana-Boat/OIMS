@@ -58,7 +58,7 @@ export default {
   .main-panel{
     display: flex;
     flex-direction: column;
-    width: 70%;
+    width: 68%;
     background: #c8c8c8;
   }
   .img-area{
@@ -69,7 +69,7 @@ export default {
   .side-panel{
     display: flex;
     flex-direction: row;
-    width: 30%;
+    width: 32%;
     background: #f0f2f3;
     box-shadow: -4px 80px 10px #bcbcbc;
   }

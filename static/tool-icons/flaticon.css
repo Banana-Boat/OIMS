@@ -1,0 +1,101 @@
+@font-face {
+    font-family: "flaticon";
+    src: url("./flaticon.ttf?f959e5f9d4d504c073cd4b8b899a95c9") format("truetype"),
+url("./flaticon.woff?f959e5f9d4d504c073cd4b8b899a95c9") format("woff"),
+url("./flaticon.woff2?f959e5f9d4d504c073cd4b8b899a95c9") format("woff2"),
+url("./flaticon.eot?f959e5f9d4d504c073cd4b8b899a95c9#iefix") format("embedded-opentype"),
+url("./flaticon.svg?f959e5f9d4d504c073cd4b8b899a95c9#flaticon") format("svg");
+}
+
+i[class^="flaticon-"]:before, i[class*=" flaticon-"]:before {
+    font-family: flaticon !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.flaticon-brightness:before {
+    content: "\f101";
+}
+.flaticon-vertical-alignment:before {
+    content: "\f102";
+}
+.flaticon-scale:before {
+    content: "\f103";
+}
+.flaticon-ruler:before {
+    content: "\f104";
+}
+.flaticon-rotate:before {
+    content: "\f105";
+}
+.flaticon-rotate-1:before {
+    content: "\f106";
+}
+.flaticon-macro:before {
+    content: "\f107";
+}
+.flaticon-vertical:before {
+    content: "\f108";
+}
+.flaticon-horizontal:before {
+    content: "\f109";
+}
+.flaticon-flash:before {
+    content: "\f10a";
+}
+.flaticon-daylight:before {
+    content: "\f10b";
+}
+.flaticon-coloring-tool:before {
+    content: "\f10c";
+}
+.flaticon-brightness-1:before {
+    content: "\f10d";
+}
+.flaticon-right:before {
+    content: "\f10e";
+}
+.flaticon-brightness-2:before {
+    content: "\f10f";
+}
+.flaticon-pin:before {
+    content: "\f110";
+}
+.flaticon-font:before {
+    content: "\f111";
+}
+.flaticon-compass:before {
+    content: "\f112";
+}
+.flaticon-zoom-out:before {
+    content: "\f113";
+}
+.flaticon-zoom-in:before {
+    content: "\f114";
+}
+.flaticon-triangular-ruler:before {
+    content: "\f115";
+}
+.flaticon-selection:before {
+    content: "\f116";
+}
+.flaticon-nodes:before {
+    content: "\f117";
+}
+.flaticon-ruler-1:before {
+    content: "\f118";
+}
+.flaticon-eraser:before {
+    content: "\f119";
+}
+.flaticon-nodes-1:before {
+    content: "\f11a";
+}
+.flaticon-undo:before {
+    content: "\f11b";
+}

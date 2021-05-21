@@ -88,21 +88,24 @@ export default {
 <style lang="less">
   // 量测结果栏
   .result-box{
-    z-index: 100;
+    position: fixed;
+    top: 80px;
+    left: 30px;
+    z-index: 10000;
     width: 20vw;
     height: 50vh;
     cursor: move;
 
     background-color: #FFF;
     border: 1px solid #EBEEF5;
-    box-shadow: 6px 6px 20px 0px #dddddd;
+    box-shadow: -6px 6px 20px 0px #a7a7a7;
     border-radius: 5px;
   }
   .result-box:hover{
     transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
     transition-duration: 250ms;
     transform: scale(1.04);
-    box-shadow: 10px 10px 30px 0px #cfcfcf;
+    box-shadow: -10px 10px 30px 0px #a0a0a0;
     border-radius: 10px;
   }
   .header-box{

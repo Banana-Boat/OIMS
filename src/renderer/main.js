@@ -12,8 +12,8 @@ import 'element-ui/lib/theme-chalk/index.css'
 import 'font-awesome/css/font-awesome.min.css'
 // 引入less
 import less from 'less'
-// 引入mapState对象（用于映射store.state中的变量）
-// import { mapState, mapMutations } from 'vuex'
+// 引入工具图标包
+import '../../static/tool-icons/flaticon.css'
 
 Vue.use(ElementUI)
 Vue.use(less)
