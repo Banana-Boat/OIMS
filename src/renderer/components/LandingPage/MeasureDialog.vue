@@ -33,7 +33,10 @@
     </div>
     <div slot="footer">
       <div class="progress-btn-box">
-        <el-progress :percentage="prePercentage" v-if="isPreprocessing"></el-progress>
+        <div v-if="curPreprocessType != 0" style="width: 100%; padding: 0 1.5rem;">
+          <el-progress :percentage="prePercentage"></el-progress>
+          <span style="font-size: 0.9rem; margin-right: 0.4rem"><span  v-if="curPreprocessType == 1">正面图</span><span v-else>侧面图</span>预处理...</span>
+        </div>
         <el-button type="primary" @click="Measure" :loading="isPreprocessing" style="margin-right:2%"><span v-if="isPreprocessing">处理中</span><span v-else>量测</span></el-button>
       </div>
     </div>
@@ -60,6 +63,7 @@ export default {
       isFrontAllSelected: false,  // 正面图文件是否全选
       isSideAllSelected: false,
       isPreprocessing: false, // 是否正在进行图片预处理
+      curPreprocessType: 0, // 当前预处理的图片类型（0：压缩操作不显示进度条  1：正面  2：侧面）
       preTotalNum: 0, // 待预处理图片总数
       preCurNum: 0, // 当前已进行预处理的图片数
       prePercentage: 0  // 当前预处理百分比
@@ -71,6 +75,7 @@ export default {
       let that = this
       that.isFrontAllSelected = false
       that.isSideAllSelected = false
+      that.curPreprocessType = 0
       that.preTotalNum = 0
       that.preCurNum = 0
       that.prePercentage = 0
@@ -134,6 +139,7 @@ export default {
     Preprocess (inputDir, outputDir, selectedArr) {
       let that = this
       let targetArr = []  // 选择数组中未被预处理的图片
+      let preprocessScale = 1 / this.$store.state.File.preprocessScale
 
       return new Promise(resolve => {
         fs.readdir(outputDir, (err, existedFiles) => {
@@ -142,6 +148,7 @@ export default {
               targetArr.push(file)
           })
           that.preTotalNum = targetArr.length
+          that.preCurNum = 0
           
           if(targetArr.length != 0){
             fs.readdir(inputDir, (err, files) => {
@@ -151,8 +158,8 @@ export default {
                     if (targetArr.indexOf(files[index]) > -1) { 
                       Jimp.read(inputDir + files[index], (err, img) => {
                         if (!err) {
-                          img.crop(0, img.getHeight() / 2, img.getWidth(), img.getHeight() / 2)
-                          img.scale(0.2)
+                          // img.crop(0, img.getHeight() / 2, img.getWidth(), img.getHeight() / 2)
+                          img.scale(preprocessScale)
                           img.writeAsync(outputDir + files[index]).then(res => {
                             that.preCurNum++
                             that.prePercentage = Number.parseInt((that.preCurNum) / that.preTotalNum * 100)
@@ -180,23 +187,31 @@ export default {
       let that = this
       that.isPreprocessing = true
 
-      let selectedArr = []
+      let sideSelectArr = []
       that.$refs.sideTable.selection.forEach(item => {
-        selectedArr.push(item.filename)
+        sideSelectArr.push(item.filename)
+      })
+      let frontSelectArr = []
+      that.$refs.frontTable.selection.forEach(item => {
+        frontSelectArr.push(item.filename)
       })
 
-      let params = this.$store.state.File.params2
-      let dirPath = params.dirPath
-      let compressDirPath = params.compressDirPath
-      let preprocessDirPath = params.preprocessDirPath
+      let params1 = this.$store.state.File.params1
+      let params2 = this.$store.state.File.params2
+      let fileList = {
+        side: {},
+        front: {}
+      }
 
       // !!!测试代码
       that.$store.commit('ChangeMeasureState', {isMeasuring: true})
-      let fileDirArr = []
-      that.$refs.sideTable.selection.forEach(item => {
-        fileDirArr.push(preprocessDirPath + item.filename)
+      that.$refs.frontTable.selection.forEach(item => {
+        fileList.front[item.filename.split('/').pop()] = params1.preprocessDirPath + item.filename
       })
-      that.$emit('StartMeasure', fileDirArr)
+      that.$refs.sideTable.selection.forEach(item => {
+        fileList.side[item.filename.split('/').pop()] = params2.preprocessDirPath + item.filename
+      })
+      that.$emit('StartMeasure', fileList)
       that.$notify.info({
         title: '消息',
         message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
@@ -208,26 +223,52 @@ export default {
       that.Close()
       // !!!!!!!!!!!!!!!!!!!!
       
-      // that.Compress(dirPath, compressDirPath).then((res) => {
-      //   if (res) {
-      //     that.Preprocess(compressDirPath, preprocessDirPath, selectedArr).then(res => {
-      //       if (res) {
-      //         that.$store.commit('ChangeMeasureState', {isMeasuring: true})
-      //         let fileDirArr = []
-      //         let preprocessDirPath = that.$store.state.File.params2.preprocessDirPath
-      //         that.$refs.sideTable.selection.forEach(item => {
-      //           fileDirArr.push(preprocessDirPath + item.filename)
-      //         })
-      //         that.$emit('StartMeasure', fileDirArr)
-      //         that.$notify.info({
-      //           title: '消息',
-      //           message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
-      //           duration: 3500,
-      //           position: 'bottom-left'
-      //         })
 
-      //         that.isPreprocessing = false
-      //         that.Close()
+      // 效率低下有待改进！！！！！！
+      // that.curPreprocessType = 0
+      // that.Compress(params1.dirPath, params1.compressDirPath).then((res) => {
+      //   if (res) {
+      //     that.Compress(params2.dirPath, params2.compressDirPath).then((res) => {
+      //       if (res) {
+      //         that.curPreprocessType = 1
+      //         that.Preprocess(params1.compressDirPath, params1.preprocessDirPath, frontSelectArr).then(res => {
+      //           if (res) {
+      //             that.curPreprocessType = 2
+      //             that.Preprocess(params2.compressDirPath, params2.preprocessDirPath, sideSelectArr).then(res => {
+      //               if (res) {
+                  
+      //                 that.$store.commit('ChangeMeasureState', {isMeasuring: true})
+                      
+      //                 that.$refs.frontTable.selection.forEach(item => {
+      //                   fileList.front[item.filename.split('/').pop()] = params1.preprocessDirPath + item.filename
+      //                 })
+      //                 that.$refs.sideTable.selection.forEach(item => {
+      //                   fileList.side[item.filename.split('/').pop()] = params2.preprocessDirPath + item.filename
+      //                 })
+                      
+      //                 that.$emit('StartMeasure', fileList)
+
+      //                 that.$notify.info({
+      //                   title: '消息',
+      //                   message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
+      //                   duration: 3500,
+      //                   position: 'bottom-left'
+      //                 })
+
+      //                 that.isPreprocessing = false
+      //                 that.Close()
+      //               } else {
+      //                 that.$message.error('图片预处理出错，请稍后重试')
+      //                 that.isPreprocessing = false
+      //                 that.Close()
+      //               }
+      //             })
+      //           } else {
+      //             that.$message.error('图片预处理出错，请稍后重试')
+      //             that.isPreprocessing = false
+      //             that.Close()
+      //           }
+      //         })
       //       } else {
       //         that.$message.error('图片预处理出错，请稍后重试')
       //         that.isPreprocessing = false
@@ -282,7 +323,6 @@ export default {
   }
 
   .el-progress{
-    width: 80%;
     display: flex;
     align-items: center;
   }

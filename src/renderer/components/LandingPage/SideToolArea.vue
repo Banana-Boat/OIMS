@@ -4,7 +4,7 @@
       <span class="side-tool-area-title">操作面板</span>
     </div>
     <div class="tool-box">
-      <el-button round @click="ShowResultBox" style="margin: 0 15px 20px 15px">显示结果</el-button>
+      <el-button round @click="ShowResultBox" style="margin:0.6rem 0.8rem 1.2rem 0.8rem">显示结果</el-button>
       <result-box :isShowResultBox="isShowResultBox" @CloseResultBox="CloseResultBox"></result-box>
       
       <div class="tool-group">
@@ -34,19 +34,19 @@
       <div class="tool-group">
         <div class="slider-box">
           <div style="display:flex;"><i class="slider-icon flaticon-daylight"></i>亮度</div>
-          <el-slider v-model="brightnessValue" style="padding:0 8px;"></el-slider>
+          <el-slider v-model="brightnessValue" style="padding:0 0.5rem;"></el-slider>
         </div>
         <div class="slider-box">
           <div style="display:flex;"><i class="slider-icon flaticon-brightness-1"></i>对比度</div>
-          <el-slider v-model="contrastValue" style="padding:0 8px;"></el-slider>
+          <el-slider v-model="contrastValue" style="padding:0 0.5rem;"></el-slider>
         </div>
         <div class="slider-box">
           <div style="display:flex;"><i class="slider-icon flaticon-brightness"></i>锐化</div>
-          <el-slider v-model="sharpenValue" style="padding:0 8px;"></el-slider>
+          <el-slider v-model="sharpenValue" style="padding:0 0.5rem;"></el-slider>
         </div>
         <div class="slider-box">
           <div style="display:flex;"><i class="slider-icon flaticon-coloring-tool"></i>平滑</div>
-          <el-slider v-model="smoothValue" style="padding:0 8px;"></el-slider>
+          <el-slider v-model="smoothValue" style="padding:0 0.5rem;"></el-slider>
         </div>
       </div>
     </div>
@@ -55,6 +55,9 @@
 
 <script>
 import ResultBox from './ResultBox.vue'
+const parser = require('fast-xml-parser')
+const fs = require('fs')
+const he = require('he')
 /*
   侧边操作面板组件，包括各类对图像编辑操作的工具 */
 export default {
@@ -80,6 +83,55 @@ export default {
     },
     CloseResultBox () {
       this.$store.commit('ChangeIsShowResultBoxState', {isShowResultBox: false})
+    },
+    // 测试脚本，废弃
+    EditResult() {
+      let fileList = JSON.parse(JSON.stringify(this.$store.state.File.params2.fileList))
+      let imgHeightList = {}
+      for (let key in fileList) {
+        let img = new Image()
+        img.src =  fileList[key].path
+        img.onload = () => {
+          imgHeightList[key] = img.height / 10
+        }
+      }
+      setTimeout(()=>{
+        console.log(imgHeightList)
+        fs.readFile('./tmp/xml/result.xml', 'utf-8', (err, res) => {
+        let imgList = parser.parse(res)
+        imgList['image-list']['image'].forEach(item => {
+          if(item.hasOwnProperty('c7')){
+              item['c7']['ymin'] += imgHeightList[item.name]
+              item['c7']['ymax'] += imgHeightList[item.name]
+          }
+          if(item.hasOwnProperty('t12')){
+              item['t12']['ymin'] += imgHeightList[item.name]
+              item['t12']['ymax'] += imgHeightList[item.name]
+          }
+          if(item.hasOwnProperty('femoralhead1')){
+              item['femoralhead1']['ymin'] += imgHeightList[item.name]
+              item['femoralhead1']['ymax'] += imgHeightList[item.name]
+          }
+          if(item.hasOwnProperty('femoralhead2')){
+              item['femoralhead2']['ymin'] += imgHeightList[item.name]
+              item['femoralhead2']['ymax'] += imgHeightList[item.name]
+          }
+          if(item.hasOwnProperty('sacrum')){
+              item['sacrum']['ymin'] += imgHeightList[item.name]
+              item['sacrum']['ymax'] += imgHeightList[item.name]
+          }
+          
+          item.name = 's_' + item.name
+        })
+        console.log(imgList)
+        let j2xml = new parser.j2xParser()
+        let xml = j2xml.parse(imgList, {})
+        fs.writeFile('./test_result.xml', xml, (err) => {
+          console.log(err)
+        })
+      })
+      }, 5000)
+      
     }
   }
 }
@@ -100,21 +152,20 @@ export default {
     flex-direction: column;
     justify-content: space-around;
     align-content: center;
-    padding: 15px 0;
   }
   .tool-group{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
-    padding: 10px 0 10px 0;
+    padding: 0.4rem 0;
     border-top: 1px solid #EBEEF5;
   }
 
   .tool-icon{
-    zoom: 1.6;
-    padding: 2px 4px;
+    padding: 1px 4px;
     cursor: pointer;
+    font-size: 1.5em;
   }
   .tool-icon:hover{
     background-color: rgb(230, 230, 230);

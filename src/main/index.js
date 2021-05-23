@@ -22,7 +22,8 @@ function createWindow () {
     resizable: false,
     webPreferences: {
       webSecurity: false
-    }
+    },
+    icon: '../../static/ai_bone_ruler.ico'
   })
   // 打开调试窗口！！！
   mainWindow.webContents.openDevTools()

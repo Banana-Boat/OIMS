@@ -79,12 +79,11 @@
 
 import MeasureDialog from './MeasureDialog'
 import {jsPDF} from 'jspdf'
-import path from 'path'
-import { resolve } from 'url'
 const {dialog} = require('electron').remote
 const fs = require('fs')
 const parser = require('fast-xml-parser')
 const axios = require('axios')
+const he = require('he')
 
 export default {
   components: {
@@ -160,11 +159,12 @@ export default {
       this.isShowDialog = false
     },
     /* 功能：通过图片选择窗口回传的图片路径数组，将图片逐个以base64格式读取，
-            打包为json上传。 */
-    StartMeasure (fileDirArr) {
+            打包为json上传。（注：正侧图分别设置前缀进行区分，s_  f_） */
+    StartMeasure (fileList) {
+      
       // 测试代码！！！读取并显示本地保存的测量结果，渲染至页面
       let that = this
-      fs.readFile('./tmp/xml/result.xml', 'utf-8', (err, res) => {
+      fs.readFile('./tmp/xml/test_result.xml', 'utf-8', (err, res) => {
         let imgList = parser.parse(res)['image-list']['image']
         if (!Array.isArray(imgList)) {
           imgList = [imgList]
@@ -172,10 +172,10 @@ export default {
         console.log(imgList)
 
         setTimeout(() => {
-          that.WriteToResultList(2, imgList)
-          // that.WriteToResultList(1, imgList) // 正面图待完善
-          that.WriteToFileList(1, imgList)
-          that.WriteToFileList(2, imgList)
+
+          that.WriteSideResult(imgList)
+          that.WriteFrontResult(imgList)
+
           this.$notify.success({
             title: '成功',
             message: '量测已完成，总耗时' + '2分钟',
@@ -187,18 +187,28 @@ export default {
         }, 5000)
       })
 
+      // ！！！！！
+
       // let that = this
       // let jsonData = []
 
-      // fileDirArr.forEach(item => {
-      //   let data = fs.readFileSync(item)
-      //   data = Buffer.from(data).toString('base64')
+      // for (let key in fileList.side) {
+      //   let data = fs.readFileSync(fileList.side[key])
 
       //   jsonData.push({
-      //     name: item.split('/').pop(),
-      //     data: data
+      //     name: 's_' + key,
+      //     data: Buffer.from(data).toString('base64')
       //   })
-      // })
+      // }
+
+      // for (let key in fileList.front) {
+      //   let data = fs.readFileSync(fileList.front[key])
+
+      //   jsonData.push({
+      //     name: 'f_' + key,
+      //     data: Buffer.from(data).toString('base64')
+      //   })
+      // }
       // console.log(jsonData)
 
       // axios({
@@ -229,18 +239,13 @@ export default {
       //           console.log(res.data.data)
       //           let data = window.atob(res.data.data) // 将base64字符串转换为utf-8
 
-      //           fs.writeFile(this.$store.state.File.resXmlPath,data, err => {  // 将识别结果写入本地
-      //             console.error(err)
-      //           })
-
       //           let imgList = parser.parse(data)['image-list']['image']
       //           if (!Array.isArray(imgList)) {
       //             imgList = [imgList]
       //           }
-      //           that.WriteToResultList(2, imgList)
-      //           that.WriteToFileList(2, imgList)
-      //           // that.WriteToResultList(1, imgList)
-      //           // that.WriteToFileList(1, imgList)
+      //           that.WriteSideResult(imgList)
+      //           that.WriteFrontResult(imgList)
+                
                 
       //           clearInterval(that.measureInterval)
       //           this.$store.commit('ChangeMeasureState', {isMeasuring: false})
@@ -272,38 +277,154 @@ export default {
       //   this.$store.commit('ChangeMeasureState', {isMeasuring: false})
       // })
     },
-    /* 功能：将识别结果逐项写入结果列表（用于绘制标注点） */
-    WriteToResultList (flag, imgList) {
-      let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
+
+
+    // ！！！！！此函数待调试！！！！
+    /* 功能：将侧面图还原后的识别结果存入resultList与本地文件，并在fileList中标注是否量测 */
+    WriteSideResult(imgList) {
+      let scale = this.$store.state.File.preprocessScale
+      let params = this.$store.state.File.params2
       let tempResList = JSON.parse(JSON.stringify(params.resList))
+      let tempFileList = JSON.parse(JSON.stringify(params.fileList))
+      let tempImgList = []     // 用于存放侧面图项
+      
       imgList.forEach(item => {
-        if (tempResList.hasOwnProperty(item.name)) {
-          tempResList[item.name]['isMeasured'] = true
-          tempResList[item.name]['measureRes'] = {
-            'sacrum': item.sacrum,
-            'femoralhead1': item.femoralhead1,
-            'femoralhead2': item.femoralhead2
+        if(item.name[0] == 's') { // 侧面图文件名前带有"s_"的前缀
+          let fileName = item.name.split('_')[1]
+          if (tempResList.hasOwnProperty(fileName)) {
+            item.name = fileName    // 删去标志正侧图的前缀
+
+            if(item.hasOwnProperty('femoralhead1'))
+              for(let key in item['femoralhead1']) {
+                item['femoralhead1'][key] *= scale
+              }
+            if(item.hasOwnProperty('femoralhead2'))
+              for(let key in item['femoralhead2']) {
+                item['femoralhead2'][key] *= scale
+              }
+            if(item.hasOwnProperty('sacrum'))
+              for(let key in item['sacrum']) {
+                item['sacrum'][key] *= scale
+              }
+            if(item.hasOwnProperty('c7'))
+              for(let key in item['c7']) {
+                item['c7'][key] *= scale
+              }
+            if(item.hasOwnProperty('t12'))
+              for(let key in item['t12']) {
+                item['t12'][key] *= scale
+              }
+            
+            tempImgList.push(item)
+
+            tempFileList[fileName]['isMeasured'] = true
+            tempResList[fileName]['isMeasured'] = true
+            tempResList[fileName]['measureRes'] = {
+              'femoralhead1': item.femoralhead1 ? item.femoralhead1 : null,
+              'femoralhead2': item.femoralhead2 ? item.femoralhead2 : null,
+              'sacrum': item.sacrum ? item.sacrum : null,
+              'c7': item.c7 ? item.c7 : null,
+              't12': item.t12 ? item.t12 : null
+            }
           }
         }
       })
+      
+      // 修改两个列表
       this.$store.commit('ChangeResList', {
-        flag: flag,
+        flag: 2,
         resList: tempResList
       })
-    },
-    /* 功能：将识别结果逐项写入文件列表（用于文件列表栏显示） */
-    WriteToFileList (flag, imgList) {
-      let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
-      let tempFileList = JSON.parse(JSON.stringify(params.fileList))
-      imgList.forEach(item => {
-        if (tempFileList.hasOwnProperty(item.name)) {
-          tempFileList[item.name]['isMeasured'] = true
-        }
-      })
       this.$store.commit('ChangeFileList', {
-        flag: flag,
+        flag: 2,
         fileList: tempFileList
       })
+      // 将修改后的以xml格式数据保存本地
+      if (tempImgList.length != 0){
+        console.log(tempImgList)
+        let obj = {
+          'image-list': {}
+        }
+        tempImgList.map(item => {
+          obj['image-list'][item.name] = item
+        })
+        let j2xml = new parser.j2xParser()
+        let xml = j2xml.parse(obj, {})
+        console.log(params.resXmlPath)
+        fs.writeFile(params.resXmlPath, xml, (err) => {})
+      }
+    },
+
+
+    /* 功能：将正面图还原后的识别结果存入resultList与本地文件，并在fileList中标注是否量测 */
+    WriteFrontResult(imgList) {
+      let scale = this.$store.state.File.preprocessScale
+      let params = this.$store.state.File.params1
+      let tempResList = JSON.parse(JSON.stringify(params.resList))
+      let tempFileList = JSON.parse(JSON.stringify(params.fileList))
+      let tempImgList = []     // 用于存放正面图
+      
+      imgList.forEach(item => {
+        if(item.name[0] == 'f') { // 正面图文件名前带有"f_"的前缀
+          let fileName = item.name.split('_')[1]
+          if (tempResList.hasOwnProperty(fileName)) {
+            item.name = fileName    // 删去标志正侧图的前缀
+
+            if(item.hasOwnProperty('c7'))
+              for(let key in item['c7']) {
+                item['c7'][key] *= scale
+              }
+            if(item.hasOwnProperty('sacrum'))
+              for(let key in item['sacrum']) {
+                item['sacrum'][key] *= scale
+              }
+            if(item.hasOwnProperty('cobb1'))
+              for(let key in item['cobb1']) {
+                item['cobb1'][key] *= scale
+              }
+            if(item.hasOwnProperty('cobb2'))
+              for(let key in item['cobb2']) {
+                item['cobb2'][key] *= scale
+              }
+            
+            tempImgList.push(item)
+            
+            tempFileList[fileName]['isMeasured'] = true
+            tempResList[fileName]['isMeasured'] = true
+            tempResList[fileName]['measureRes'] = {
+              'c7': item.c7 ? item.c7 : null,
+              'sacrum': item.sacrum ? item.sacrum : null,
+              'cobb1': item.cobb1 ? item.cobb1 : null,
+              'cobb2': item.cobb2 ? item.cobb2 : null
+            }
+          }
+        }
+      })
+      
+      // 修改两个列表
+      this.$store.commit('ChangeResList', {
+        flag: 1,
+        resList: tempResList
+      })
+      this.$store.commit('ChangeFileList', {
+        flag: 1,
+        fileList: tempFileList
+      })
+      // 将修改后的以xml格式数据保存本地
+      if (tempImgList.length != 0){
+        console.log(tempImgList)
+        let obj = {
+          'image-list': {}
+        }
+        tempImgList.map(item => {
+          obj['image-list'][item.name] = item
+        })
+        let j2xml = new parser.j2xParser()
+        let xml = j2xml.parse(obj, {})
+        console.log(params.resXmlPath)
+        fs.writeFile(params.resXmlPath, xml, (err) => {})
+      }
+
     },
     /* 功能：取消量测，停止继续向服务器请求量测结果 */
     CancelMeasure () {

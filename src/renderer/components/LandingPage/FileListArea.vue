@@ -1,15 +1,15 @@
 <template>
-  <div class="file-list-area-content">
+  <div class="file-list-area-content" ref="areaHeight">
     <el-card class="file-list-box">
       <div class="file-list-header" slot="header">
         <span class="file-list-title">正面图</span>
         <i ref="frontRefreshBtn" @click="RefreshFrontFile"
           :class="['fa', 'fa-refresh', 'file-list-refresh', isFrontRefreshing?'fa-spin':'']"></i>
       </div>
-      <el-table ref="table1" :data="FrontListData" :show-header="false" max-height="260" @row-click="SelectFrontFile"
-                style="cursor: pointer;" tooltip-effect="light"
-                :row-style="{height: '20px'}" :cell-style="{padding: '5px'}"
-                :highlight-current-row="true">
+      <el-table ref="table1" :data="FrontListData" :show-header="false" :max-height="tableHeight" @row-click="SelectFrontFile"
+              style="cursor: pointer;" tooltip-effect="light"
+              :row-style="{height: '20px'}" :cell-style="{padding: '5px'}"
+              :highlight-current-row="true">
         <el-table-column min-width="70" :show-overflow-tooltip="true">
           <template slot-scope="scope">
             <el-tooltip :content="scope.row.path" placement="top-start" :open-delay=1000 effect="light">
@@ -30,7 +30,7 @@
         <i ref="sideRefreshBtn" @click="RefreshSideFile"
           :class="['fa', 'fa-refresh', 'file-list-refresh', isSideRefreshing?'fa-spin':'']"></i>
       </div>
-      <el-table ref="table2" :data="SideListData" :show-header="false" max-height="260" @row-click="SelectSideFile"
+      <el-table ref="table2" :data="SideListData" :show-header="false" :max-height="tableHeight" @row-click="SelectSideFile"
                 style="cursor: pointer;" tooltip-effect="light"
                 :row-style="{height: '20px'}" :cell-style="{padding: '5px'}"
                 :highlight-current-row="true">
@@ -59,8 +59,14 @@ export default {
   data () {
     return {
       isFrontRefreshing: false, // 正面图是否被刷新
-      isSideRefreshing: false
+      isSideRefreshing: false,
+      tableHeight: 0
     }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.tableHeight = this.$refs.areaHeight.clientHeight / 2 - 100
+    })
   },
   computed: {
     FrontListData () {  // 监听正面图列表数据

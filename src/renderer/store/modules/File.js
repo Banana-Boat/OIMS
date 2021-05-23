@@ -9,7 +9,8 @@ const state = {
     'fileList': {}, // 文件列表（用于维护文件列表栏）
     'resList': {}, // 量测结果列表（用于维护图片的量测结果，包含每一项）
     'curFilename': '', // 当前打开的文件文件名
-    'canvasData': null // 画布
+    'canvasData': null, // 画布
+    'resXmlPath': './tmp/xml/front_result.xml',
   },
   // 侧面图的相关变量
   params2: {
@@ -19,13 +20,14 @@ const state = {
     'fileList': {},
     'resList': {},
     'curFilename': '',
-    'canvasData': null
+    'canvasData': null,
+    'resXmlPath': './tmp/xml/side_result.xml'
   },
   selectedImgBox: 1, // 当前选中的图片框
   isMeasuring: false, // 是否在量测中
   curEntireRes: null, // 当前文件整体量测结果（正+侧）
-  resXmlPath: './tmp/xml/result.xml',
-  isShowResultBox: false //是否显示结果面板
+  isShowResultBox: false, //是否显示结果面板
+  preprocessScale: 5 // 预处理图片缩放倍率
 }
 
 const mutations = {

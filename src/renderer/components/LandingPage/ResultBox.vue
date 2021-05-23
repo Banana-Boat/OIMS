@@ -4,7 +4,7 @@
       <span class="header-text">量测结果</span>
       <i class="fa fa-close close-icon" @click="Close"></i>
     </div>
-    <div class="content-box" v-if="isParsed2">
+    <div class="content-box" v-if="isSideParsed">
       <div>ss: {{result.ss}}</div>
       <div>pt: {{result.pt}}</div>
       <div>pi: {{result.pi}}</div>
@@ -26,39 +26,76 @@ export default {
         'ss': '',
         'pt': '',
         'pi': ''
-      }
+      },
+      isSideParsed: false
     }
   },
   computed: {
-    isParsed2 () {
-      let curFilename = this.$store.state.File.params2.curFilename
-      let isParsed = null
-      if (this.$store.state.File.params2.resList[curFilename]) {
-        isParsed = this.$store.state.File.params2.resList[curFilename].isParsed
-      }
-      if (isParsed) {
-        let parseRes = this.$store.state.File.params2.resList[curFilename].parseRes
-        let result = this.CalResult(parseRes)
-        this.result = result
-        this.$store.commit('ChangeCurEntireRes', {
-          curEntireRes: result
-        })
-        return true
-      } else {
-        this.result = {
-          'ss': '',
-          'pt': '',
-          'pi': ''
-        }
-        // 待改整合（正侧）
-        this.$store.commit('ChangeCurEntireRes', {
-          curEntireRes: null
-        })
-        return false
-      }
-    }
+    sideCurFilename () {
+      return this.$store.state.File.params2.curFilename
+    },
+    // isParsed2 () {
+    //   let curFilename = this.$store.state.File.params2.curFilename
+    //   let isParsed = null
+    //   if (this.$store.state.File.params2.resList[curFilename]) {
+    //     isParsed = this.$store.state.File.params2.resList[curFilename].isParsed
+    //   }
+    //   if (isParsed) {
+    //     let parseRes = this.$store.state.File.params2.resList[curFilename].parseRes
+    //     let result = this.CalResult(parseRes)
+    //     this.result = result
+    //     this.$store.commit('ChangeCurEntireRes', {
+    //       curEntireRes: result
+    //     })
+    //     return true
+    //   } else {
+    //     this.result = {
+    //       'ss': '',
+    //       'pt': '',
+    //       'pi': ''
+    //     }
+    //     // 待改整合（正侧）
+    //     this.$store.commit('ChangeCurEntireRes', {
+    //       curEntireRes: null
+    //     })
+    //     return false
+    //   }
+    // }
   },
   watch: {
+    sideCurFilename: {
+      immediate: true,
+      handler: function(nv, ov) {
+        console.log(nv)
+        let curFilename = nv
+        let isParsed = false
+        console.log(this.$store.state.File.params2.resList[curFilename])
+        if (this.$store.state.File.params2.resList[curFilename]) {
+          isParsed = this.$store.state.File.params2.resList[curFilename].isParsed
+        }
+        this.isSideParsed = isParsed
+        if (isParsed) {
+          let parseRes = this.$store.state.File.params2.resList[curFilename].parseRes
+          let result = this.CalResult(parseRes)
+          this.result = result
+          this.$store.commit('ChangeCurEntireRes', {
+            curEntireRes: result
+          })
+        } else {
+          this.result = {
+            'ss': '',
+            'pt': '',
+            'pi': ''
+          }
+          // 待改整合（正侧）
+          this.$store.commit('ChangeCurEntireRes', {
+            curEntireRes: null
+          })
+        }
+      }
+    }
+    
+    
   },
   methods: {
     CalResult (parseRes) {
