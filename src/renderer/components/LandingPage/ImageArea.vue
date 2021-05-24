@@ -109,15 +109,16 @@ export default {
       console.log(imgInfo)
       let that = this
 
-
       canvas.clear() // 清空画布
 
       let img = new Image()
       img.src = imgInfo.path
       img.onload = () => {
+
         // 记录图片宽高，并将在画布中打开
         let ratio = img.height / img.width // 当前打开图像的长宽比
         let displayScale = canvas.height / img.height // 画布与图像之间高度比
+
         canvas.setWidth(canvas.height / ratio)
         fabric.Image.fromURL(imgInfo.path, function (img, isError) {
           img.set({top: 0, left: 0, scaleX: displayScale, scaleY: displayScale})
@@ -127,30 +128,27 @@ export default {
           })
         })
 
-        // 若图像已被量测，则解析数据并绘制图线
-        if (imgInfo.isMeasured) {
+        //！！！！！仅绘制骨盆参数，其余参数待添加！！！！！
 
-          // 解析量测数据
-          let parseRes = {}
-          let params = flag === 1 ? that.$store.state.File.params1 : that.$store.state.File.params2
-          let filename = imgInfo.path.split('\\').pop()
+        // 若图片已被量测，则渲染关键点，并设置关键点位置的监听事件
+        if (imgInfo.isParsed) {
+          let curFilename = this.$store.state.File.params2.curFilename
+          let tempResList = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList))
+          let pelvis = imgInfo.displayParseRes.pelvis
 
-          if (!imgInfo.isParsed) {  // 若图像未被解析，则调用函数将其解析
-            parseRes = that.ParseResult(imgInfo.measureRes, displayScale)
-            
-            let tempResList = JSON.parse(JSON.stringify(params.resList))
-            tempResList[filename].isParsed = true
-            tempResList[filename]['parseRes'] = parseRes
-            that.$store.commit('ChangeResList', {
-              flag: flag,
+          if (!imgInfo.isScaled) {  // 如果量测点没有缩放过, 将坐标点缩放至显示比例，并更新至全局变量
+            pelvis = that.OriginToDisplay(imgInfo.displayParseRes.pelvis, displayScale)
+            tempResList[curFilename].displayParseRes.pelvis = pelvis
+            tempResList[curFilename].isScaled = true
+
+            this.$store.commit('ChangeResList', {
+              flag: 2,
               resList: tempResList
             })
-          } else {  //若图像已被解析，则直接渲染
-            parseRes = JSON.parse(JSON.stringify(params.resList[filename].parseRes))
           }
-          console.log(parseRes)
+          
 
-          // 根据解析获得的量测数据，绘制点线至画布
+          // 根据关键点，绘制至画布
           let lineAttr = {  // 绘制直线的属性
             fill: 'blue',
             stroke: 'blue',
@@ -172,19 +170,19 @@ export default {
             let p4 = null
             let p5 = null
 
-            if(parseRes.p5 && parseRes.p2)
-              p25Line = new fabric.Line([parseRes.p2[0], parseRes.p2[1], parseRes.p5[0], parseRes.p5[1]], lineAttr)
+            if(pelvis.p5 && pelvis.p2)
+              p25Line = new fabric.Line([pelvis.p2[0], pelvis.p2[1], pelvis.p5[0], pelvis.p5[1]], lineAttr)
 
-            if(parseRes.p1 && parseRes.p0)
-              p01Line = new fabric.Line([parseRes.p0[0], parseRes.p0[1], parseRes.p1[0], parseRes.p1[1]], lineAttr)
+            if(pelvis.p1 && pelvis.p0)
+              p01Line = new fabric.Line([pelvis.p0[0], pelvis.p0[1], pelvis.p1[0], pelvis.p1[1]], lineAttr)
             
-            if(parseRes.p2)
-              p2 = new fabric.Circle({left: parseRes.p2[0] - pRadius, top: parseRes.p2[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
+            if(pelvis.p2)
+              p2 = new fabric.Circle({left: pelvis.p2[0] - pRadius, top: pelvis.p2[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
             
-            if(parseRes.p0)
+            if(pelvis.p0)
               p0 = new fabric.Circle({
-                left: parseRes.p0[0] - pRadius,
-                top: parseRes.p0[1] - pRadius,
+                left: pelvis.p0[0] - pRadius,
+                top: pelvis.p0[1] - pRadius,
                 radius: pRadius,
                 fill: pFill,
                 'self': 'p0',
@@ -192,10 +190,10 @@ export default {
                 'adLine': p01Line ? p01Line : null,
                 'centerLine': p25Line ? p25Line : null})
             
-            if(parseRes.p1)
+            if(pelvis.p1)
               p1 = new fabric.Circle({
-                left: parseRes.p1[0] - pRadius,
-                top: parseRes.p1[1] - pRadius,
+                left: pelvis.p1[0] - pRadius,
+                top: pelvis.p1[1] - pRadius,
                 radius: pRadius,
                 fill: pFill,
                 'self': 'p1',
@@ -203,16 +201,16 @@ export default {
                 'adLine': p01Line ? p01Line : null,
                 'centerLine': p25Line ? p25Line : null})
 
-            if(parseRes.p3)
-              p34Line = new fabric.Line([parseRes.p3[0], parseRes.p3[1], parseRes.p3[0], parseRes.p3[1]], lineAttr)
+            if(pelvis.p3)
+              p34Line = new fabric.Line([pelvis.p3[0], pelvis.p3[1], pelvis.p3[0], pelvis.p3[1]], lineAttr)
             
-            if(parseRes.p5)
-              p5 = new fabric.Circle({left: parseRes.p5[0] - pRadius, top: parseRes.p5[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
+            if(pelvis.p5)
+              p5 = new fabric.Circle({left: pelvis.p5[0] - pRadius, top: pelvis.p5[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
             
-            if(parseRes.p3)
+            if(pelvis.p3)
               p3 = new fabric.Circle({
-                left: parseRes.p3[0] - pRadius,
-                top: parseRes.p3[1] - pRadius,
+                left: pelvis.p3[0] - pRadius,
+                top: pelvis.p3[1] - pRadius,
                 radius: pRadius,
                 fill: pFill,
                 'self': 'p3',
@@ -220,10 +218,10 @@ export default {
                 'adLine': p34Line ? p34Line : null,
                 'centerLine': p25Line ? p25Line : null})
             
-            if(parseRes.p3)
+            if(pelvis.p3)
               p4 = new fabric.Circle({
-                left: parseRes.p3[0] - pRadius,
-                top: parseRes.p3[1] - pRadius,
+                left: pelvis.p3[0] - pRadius,
+                top: pelvis.p3[1] - pRadius,
                 radius: pRadius,
                 fill: pFill,
                 'self': 'p4',
@@ -231,16 +229,16 @@ export default {
                 'adLine': p34Line ? p34Line : null,
                 'centerLine': p25Line ? p25Line : null})
 
-            if(parseRes.p0) p0.hasControls = false
-            if(parseRes.p1) p1.hasControls = false
-            if(parseRes.p2) p2.hasControls = false
-            if(parseRes.p3) p3.hasControls = false
-            if(parseRes.p4) p4.hasControls = false
-            if(parseRes.p5) p5.hasControls = false
+            if(pelvis.p0) p0.hasControls = false
+            if(pelvis.p1) p1.hasControls = false
+            if(pelvis.p2) p2.hasControls = false
+            if(pelvis.p3) p3.hasControls = false
+            if(pelvis.p4) p4.hasControls = false
+            if(pelvis.p5) p5.hasControls = false
 
-            if (parseRes.p4) {
-              p34Line.set({'x2': parseRes.p4[0], 'y2': parseRes.p4[1]})
-              p4.set({'left': parseRes.p4[0] - pRadius, 'top': parseRes.p4[1] - pRadius})
+            if (pelvis.p4) {
+              p34Line.set({'x2': pelvis.p4[0], 'y2': pelvis.p4[1]})
+              p4.set({'left': pelvis.p4[0] - pRadius, 'top': pelvis.p4[1] - pRadius})
             }
 
             if (p01Line) canvas.add(p01Line)
@@ -252,22 +250,25 @@ export default {
             if (p3) canvas.add(p3)
             if (p4) canvas.add(p4)
             if (p5) canvas.add(p5)
-            
+
             canvas.renderAll()
             that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
             
-            // 监听关键点线的位置变化，并重新绘制。（仅完成骨盆骨盆参数的监听！）
+            // 监听关键点线的位置变化，并重新绘制。
+            
             canvas.on('object:moving', (e) => {
               if (e.target) {
                 let p = e.target
                 if (['p0', 'p1', 'p3', 'p4'].includes(p.self)) {
                   let curFilename = this.$store.state.File.params2.curFilename
                   let tempResList = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList))
+                  let pelvis = tempResList[curFilename].displayParseRes.pelvis
+                  
                   switch (p.self) {
                     case 'p0':
                       if(p.adLine){ // 区别四个选择分支
                         p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
-                        tempResList[curFilename].parseRes.p0 = [p.adLine.x1, p.adLine.y1]
+                        pelvis.p0 = [p.adLine.x1, p.adLine.y1]
                       }
 
                       if(p.centerP && p.adLine)
@@ -279,14 +280,14 @@ export default {
                       if(p.centerLine && p.centerP)
                         p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
                         
-                      if(tempResList[curFilename].parseRes.p2 && p.centerP) // 区别四个选择分支
-                        tempResList[curFilename].parseRes.p2 = [p.centerP.left, p.centerP.top]
+                      if(pelvis.p2 && p.centerP) // 区别四个选择分支
+                        pelvis.p2 = [p.centerP.left, p.centerP.top]
 
                       break
                     case 'p1':
                       if(p.adLine){
                         p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
-                        tempResList[curFilename].parseRes.p1 = [p.adLine.x2, p.adLine.y2]
+                        pelvis.p1 = [p.adLine.x2, p.adLine.y2]
                       }
 
                       if(p.centerP && p.adLine)
@@ -298,14 +299,14 @@ export default {
                       if(p.centerLine && p.centerP)
                         p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
                         
-                      if(tempResList[curFilename].parseRes.p2 && p.centerP)
-                        tempResList[curFilename].parseRes.p2 = [p.centerP.left, p.centerP.top]
+                      if(pelvis.p2 && p.centerP)
+                        pelvis.p2 = [p.centerP.left, p.centerP.top]
 
                       break
                     case 'p3':
                       if(p.adLine){
                         p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
-                        tempResList[curFilename].parseRes.p3 = [p.adLine.x1, p.adLine.y1]
+                        pelvis.p3 = [p.adLine.x1, p.adLine.y1]
                       }
 
                       if(p.centerP && p.adLine){
@@ -318,15 +319,14 @@ export default {
                       if(p.centerLine && p.centerP)
                         p.centerLine.set({'x2': p.centerP.left + pRadius, 'y2': p.centerP.top + pRadius})
 
-                      if(tempResList[curFilename].parseRes.p5 && p.centerP)
-                        tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
-
+                      if(pelvis.p5 && p.centerP)
+                        pelvis.p5 = [p.centerP.left, p.centerP.top]
 
                       break
                     case 'p4':
                       if(p.adLine){
                         p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
-                        tempResList[curFilename].parseRes.p4 = [p.adLine.x2, p.adLine.y2]
+                        pelvis.p4 = [p.adLine.x2, p.adLine.y2]
                       }
 
                       if(p.centerP){
@@ -339,12 +339,15 @@ export default {
                       if(p.centerLine && p.centerP)
                         p.centerLine.set({'x2': p.centerP.left + pRadius, 'y2': p.centerP.top + pRadius})
                       
-                      if(tempResList[curFilename].parseRes.p5 && p.centerP)
-                        tempResList[curFilename].parseRes.p5 = [p.centerP.left, p.centerP.top]
-
+                      if(pelvis.p5 && p.centerP)
+                        pelvis.p5 = [p.centerP.left, p.centerP.top]
 
                       break
                   }
+
+                  // 将拖拽后的点存入全局
+                  console.log(pelvis)
+                  tempResList[curFilename].displayParseRes.pelvis = pelvis
                   that.$store.commit('ChangeResList', {
                     flag: 2,
                     resList: tempResList
@@ -359,56 +362,16 @@ export default {
         }
       }
     },
-    /* 功能：解析点坐标 */
-    ParseResult (measureRes, displayScale) {
-      let parseRes = {}
-      console.log(measureRes)
-      let p0 = null
-      let p1 = null
-      let p2 = null
-      let p3 = null
-      let p5 = null
-      let p4 = null
-      if (measureRes.sacrum) {
-        let sXmin = Number.parseInt(measureRes.sacrum.xmin * displayScale)
-        let sYmin = Number.parseInt(measureRes.sacrum.ymin * displayScale)
-        let sXmax = Number.parseInt(measureRes.sacrum.xmax * displayScale)
-        let sYmax = Number.parseInt(measureRes.sacrum.ymax * displayScale)
-        p0 = [sXmin, sYmin]
-        p1 = [sXmax, sYmax]
+    /* 功能：根据图片缩放比率,将坐标点从原始大小缩放至显示大小 */
+    OriginToDisplay(pointList, displayScale) {
+      for(let key in pointList) {
+        if (pointList[key]) {
+          pointList[key][0] *= displayScale
+          pointList[key][1] *= displayScale
+        }
       }
-      
-      if (measureRes.femoralhead1) {
-        let f1Xmin = Number.parseInt(measureRes.femoralhead1.xmin * displayScale)
-        let f1Ymin = Number.parseInt(measureRes.femoralhead1.ymin * displayScale)
-        let f1Xmax = Number.parseInt(measureRes.femoralhead1.xmax * displayScale)
-        let f1Ymax = Number.parseInt(measureRes.femoralhead1.ymax * displayScale)
-        if (p0 && p1) 
-          p2 = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2]
-        p3 = [(f1Xmin + f1Xmax) / 2, (f1Ymin + f1Ymax) / 2]
-        p5 = p3
-        p4 = null
-      }
-      // 当第二个股骨头不存在时，即等同于第一个股骨头
-      if (measureRes.femoralhead2) {
-        let f2Xmin = Number.parseInt(measureRes.femoralhead2.xmin * displayScale)
-        let f2Ymin = Number.parseInt(measureRes.femoralhead2.ymin * displayScale)
-        let f2Xmax = Number.parseInt(measureRes.femoralhead2.xmax * displayScale)
-        let f2Ymax = Number.parseInt(measureRes.femoralhead2.ymax * displayScale)
-        p4 = [(f2Xmin + f2Xmax) / 2, (f2Ymin + f2Ymax) / 2]
-        p5 = [(p3[0] + p4[0]) / 2, (p3[1] + p4[1]) / 2]
-      }
-      parseRes = {
-        'p0': p0,
-        'p1': p1,
-        'p2': p2,
-        'p3': p3,
-        'p4': p4,
-        'p5': p5
-      }
-      console.log(parseRes)
-      return parseRes
-    }
+      return pointList
+    },
   }
 }
 </script>

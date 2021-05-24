@@ -282,8 +282,13 @@ export default {
       // })
     },
 
+    /* 功能：将关键点信息以xml格式存入本地文件 */
+    WriteToLocalFile () {
 
-    /* 功能：将侧面图还原后的识别结果存入resultList与本地文件，并在fileList中标注是否量测 */
+    },
+
+    /* 功能：将侧面图识别结果先进行还原，再提取关键点。
+            将关键点信息存入resultList与本地文件，并在fileList中标注是否量测 */
     WriteSideResult(imgList) {
       let scale = this.$store.state.File.preprocessScale
       let params = this.$store.state.File.params2
@@ -291,44 +296,81 @@ export default {
       let tempFileList = JSON.parse(JSON.stringify(params.fileList))  // 创建副本，进行修改
       let tempImgList = []     // 用于存放侧面图项
       
+      
+      
       imgList.forEach(item => {
         if(item.name[0] == 's') { // 侧面图文件名前带有"s_"的前缀
           let filename = item.name.split('_')[1]
           if (tempResList.hasOwnProperty(filename)) {
             item.name = filename    // 删去标志正侧图的前缀
 
-            if(item.hasOwnProperty('femoralhead1'))
-              for(let key in item['femoralhead1']) {
-                item['femoralhead1'][key] *= scale
-              }
-            if(item.hasOwnProperty('femoralhead2'))
-              for(let key in item['femoralhead2']) {
-                item['femoralhead2'][key] *= scale
-              }
-            if(item.hasOwnProperty('sacrum'))
-              for(let key in item['sacrum']) {
-                item['sacrum'][key] *= scale
-              }
-            if(item.hasOwnProperty('c7'))
-              for(let key in item['c7']) {
-                item['c7'][key] *= scale
-              }
-            if(item.hasOwnProperty('t12'))
-              for(let key in item['t12']) {
-                item['t12'][key] *= scale
-              }
+            // 骨盆参数定义
+            let p0 = null
+            let p1 = null
+            let p2 = null
+            let p3 = null
+            let p4 = null
+            let p5 = null
+
+            if(item.hasOwnProperty('sacrum')){
+              let sXmin = Number.parseInt(item.sacrum.xmin * scale)
+              let sYmin = Number.parseInt(item.sacrum.ymin * scale)
+              let sXmax = Number.parseInt(item.sacrum.xmax * scale)
+              let sYmax = Number.parseInt(item.sacrum.ymax * scale)
+              p0 = [sXmin, sYmin]
+              p1 = [sXmax, sYmax]
+            }
+
+            if(item.hasOwnProperty('femoralhead1')){
+              let f1Xmin = Number.parseInt(item.femoralhead1.xmin * scale)
+              let f1Ymin = Number.parseInt(item.femoralhead1.ymin * scale)
+              let f1Xmax = Number.parseInt(item.femoralhead1.xmax * scale)
+              let f1Ymax = Number.parseInt(item.femoralhead1.ymax * scale)
+              if (p0 && p1) 
+                p2 = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2]
+              p3 = [(f1Xmin + f1Xmax) / 2, (f1Ymin + f1Ymax) / 2]
+              p5 = p3
+              p4 = null
+            }
+            
+            // 当第二个股骨头不存在时，即等同于第一个股骨头
+            if(item.hasOwnProperty('femoralhead2')){
+              let f2Xmin = Number.parseInt(item.femoralhead2.xmin * scale)
+              let f2Ymin = Number.parseInt(item.femoralhead2.ymin * scale)
+              let f2Xmax = Number.parseInt(item.femoralhead2.xmax * scale)
+              let f2Ymax = Number.parseInt(item.femoralhead2.ymax * scale)
+              p4 = [(f2Xmin + f2Xmax) / 2, (f2Ymin + f2Ymax) / 2]
+              p5 = [(p3[0] + p4[0]) / 2, (p3[1] + p4[1]) / 2]
+            }
+
+            
+            // if(item.hasOwnProperty('c7'))
+            //   for(let key in item['c7']) {
+            //     item['c7'][key] *= scale
+            //   }
+            // if(item.hasOwnProperty('t12'))
+            //   for(let key in item['t12']) {
+            //     item['t12'][key] *= scale
+            //   }
             
             tempImgList.push(item)
 
-            tempFileList[filename]['isMeasured'] = true
-            tempResList[filename]['isMeasured'] = true
-            tempResList[filename]['measureRes'] = {
-              'femoralhead1': item.femoralhead1 ? item.femoralhead1 : null,
-              'femoralhead2': item.femoralhead2 ? item.femoralhead2 : null,
-              'sacrum': item.sacrum ? item.sacrum : null,
-              'c7': item.c7 ? item.c7 : null,
-              't12': item.t12 ? item.t12 : null
+            let pelvis = {
+              p0: p0, p1: p1, p2: p2, p3: p3, p4: p4, p5: p5
             }
+            tempFileList[filename]['isMeasured'] = true
+            tempResList[filename]['isParsed'] = true
+            tempResList[filename]['isScaled'] = false
+            tempResList[filename].originParseRes.pelvis = pelvis
+            tempResList[filename].displayParseRes.pelvis = pelvis
+            // tempResList[filename]['isMeasured'] = true
+            // tempResList[filename]['measureRes'] = {
+            //   'femoralhead1': item.femoralhead1 ? item.femoralhead1 : null,
+            //   'femoralhead2': item.femoralhead2 ? item.femoralhead2 : null,
+            //   'sacrum': item.sacrum ? item.sacrum : null,
+            //   'c7': item.c7 ? item.c7 : null,
+            //   't12': item.t12 ? item.t12 : null
+            // }
           }
         }
       })
@@ -358,8 +400,8 @@ export default {
       }
     },
 
-
-    /* 功能：将正面图还原后的识别结果存入resultList与本地文件，并在fileList中标注是否量测 */
+    /* 功能：将正面图识别结果先进行还原，再提取关键点。
+            将关键点信息存入resultList与本地文件，并在fileList中标注是否量测  */
     WriteFrontResult(imgList) {
       let scale = this.$store.state.File.preprocessScale
       let params = this.$store.state.File.params1

@@ -73,64 +73,74 @@ export default {
     }
   },
   computed: {
-    frontCurFilename () {
-      return this.$store.state.File.params1.curFilename
+    frontCurFileRes () {
+      let params = this.$store.state.File.params1
+      if (params.resList[params.curFilename]) 
+        return JSON.parse(JSON.stringify(params.resList[params.curFilename]))
+      else 
+        return false
     },
-    sideCurFilename () {
-      return this.$store.state.File.params2.curFilename
-    },
+    sideCurFileRes () {
+      let params = this.$store.state.File.params2
+      if (params.resList[params.curFilename]) 
+        return JSON.parse(JSON.stringify(params.resList[params.curFilename]))
+      else 
+        return false
+    }
   },
   watch: {
-    frontCurFilename: {
+    /* 功能：监听当前打开正面图文件的量测结果信息 */
+    frontCurFileRes: {
       immediate: true,
       handler: function(nv, ov) {
-        let curFilename = nv
-        this.Refresh(1, curFilename)
+        if (nv)     // 未选择图片文件目录时，文件结果项不存在
+          this.Refresh(1, nv)
       }
     },
-    sideCurFilename: {
+    /* 功能：监听当前打开侧面图文件的量测结果信息 */
+    sideCurFileRes: {
       immediate: true,
       handler: function(nv, ov) {
-        let curFilename = nv
-        this.Refresh(2, curFilename)
+        if (nv)     // 未选择图片文件目录时，文件结果项不存在
+          this.Refresh(2, nv)
       }
     }
   },
   methods: {
     /* 功能：刷新页面结果面板信息 */
-    Refresh (flag, curFilename) {
+    Refresh (flag, curFileRes) {
       let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
-      let curEntireRes = JSON.parse(JSON.stringify(this.$store.state.File.curEntireRes))
-      let isMeasured = false
-      let measureRes = {}
       
-      if (params.resList[curFilename]) {
-        isMeasured = JSON.parse(JSON.stringify(params.resList[curFilename].isMeasured))
-        measureRes = JSON.parse(JSON.stringify(params.resList[curFilename].measureRes))
-      }
-
       if (flag == 1) {
-        if (isMeasured) {
-          let coronalResult = this.CalCoronalResult(measureRes)
-          this.result.coronal = coronalResult
+        if (curFileRes.isParsed) {
+
+
+
+          this.isFrontMeasured = true
+        } else {
+          this.isFrontMeasured = false
         }
-        this.isFrontMeasured = isMeasured
         
       } else {
-        if (isMeasured) {
-          let pelvisResult = this.CalPelvisResult(measureRes)
-          let sagittalResult = this.CalSagittalResult(measureRes)
+        if (curFileRes.isParsed) {
+          let pelvisResult = this.CalPelvisResult(curFileRes.displayParseRes.pelvis)
           this.result.pelvis = pelvisResult
-          this.result.sagittal = sagittalResult
+
+          // let sagittalResult = this.CalSagittalResult(measureRes)
+          // this.result.sagittal = sagittalResult
+          
+          this.isSideMeasured = true
+        } else {
+          this.isSideMeasured = false
         }
-        this.isSideMeasured = isMeasured
+        
       }
 
-      if (isMeasured) {
-        this.$store.commit('ChangeCurEntireRes', {
-          curEntireRes: JSON.parse(JSON.stringify(this.result))
-        })
-      } 
+      // if (curFileRes.isParsed) {
+      //   this.$store.commit('ChangeCurEntireRes', {
+      //     curEntireRes: JSON.parse(JSON.stringify(this.result))
+      //   })
+      // } 
       
     },
     /* 功能：计算冠状位参数(cva, cobb)，注：医学图像分辨率固定为96 */
@@ -184,55 +194,18 @@ export default {
     },
     
     /* 功能：计算骨盆相关参数(ss, pt, pi) */
-    CalPelvisResult (measureRes) {
-      let p0 = null
-      let p1 = null
-      let p2 = null
-      let p3 = null
-      let p4 = null
-      let p5 = null
-
+    CalPelvisResult (pelvisRes) {
       let ss = null
       let pt = null
       let pi = null
 
-      if (measureRes.sacrum) {
-        let sXmin = Number.parseInt(measureRes.sacrum.xmin)
-        let sYmin = Number.parseInt(measureRes.sacrum.ymin)
-        let sXmax = Number.parseInt(measureRes.sacrum.xmax)
-        let sYmax = Number.parseInt(measureRes.sacrum.ymax)
-        p0 = [sXmin, sYmin]
-        p1 = [sXmax, sYmax]
-      }
+      if(pelvisRes.p1 && pelvisRes.p0)
+        ss = Math.atan((pelvisRes.p1[1] - pelvisRes.p0[1]) / (pelvisRes.p1[0] - pelvisRes.p0[0])) * 180 / Math.PI
       
-      if (measureRes.femoralhead1) {
-        let f1Xmin = Number.parseInt(measureRes.femoralhead1.xmin)
-        let f1Ymin = Number.parseInt(measureRes.femoralhead1.ymin)
-        let f1Xmax = Number.parseInt(measureRes.femoralhead1.xmax)
-        let f1Ymax = Number.parseInt(measureRes.femoralhead1.ymax)
-        if (p0 && p1) 
-          p2 = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2]
-        p3 = [(f1Xmin + f1Xmax) / 2, (f1Ymin + f1Ymax) / 2]
-        p5 = p3
-        p4 = null
-      }
-      // 当第二个股骨头不存在时，即等同于第一个股骨头
-      if (measureRes.femoralhead2) {
-        let f2Xmin = Number.parseInt(measureRes.femoralhead2.xmin)
-        let f2Ymin = Number.parseInt(measureRes.femoralhead2.ymin)
-        let f2Xmax = Number.parseInt(measureRes.femoralhead2.xmax)
-        let f2Ymax = Number.parseInt(measureRes.femoralhead2.ymax)
-        p4 = [(f2Xmin + f2Xmax) / 2, (f2Ymin + f2Ymax) / 2]
-        p5 = [(p3[0] + p4[0]) / 2, (p3[1] + p4[1]) / 2]
-      }
-
-      if(p1 && p0)
-        ss = Math.atan((p1[1] - p0[1]) / (p1[0] - p0[0])) * 180 / Math.PI
+      if(pelvisRes.p5 && pelvisRes.p2)
+        pt = 90.0 - (Math.atan((pelvisRes.p2[1] - pelvisRes.p5[1]) / (pelvisRes.p2[0] - pelvisRes.p5[0])) * 180 / Math.PI)
       
-      if(p5 && p2)
-        pt = 90.0 - (Math.atan((p2[1] - p5[1]) / (p2[0] - p5[0])) * 180 / Math.PI)
-      
-      if(p1 && p0 && p5 && p2)
+      if(pelvisRes.p1 && pelvisRes.p0 && pelvisRes.p5 && pelvisRes.p2)
         pi = ss + pt
 
       return {
