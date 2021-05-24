@@ -116,10 +116,8 @@ const actions = {
             }
             tempResList[file] = {
               'path': payload.path + '\\' + file,
-              'isMeasured': false,
               'isParsed': false,
               'isScaled': false, // 解析结果是否被缩放过
-              'measureRes': {}, // 量测结果
               'originParseRes': {}, // 原图尺寸对应的解析结果（点集）
               'displayParseRes': {} // 当前显示尺寸对应的解析结果（点集）
             }

@@ -91,7 +91,7 @@ export default {
   watch: {
     /* 功能：监听当前打开正面图文件的量测结果信息 */
     frontCurFileRes: {
-      immediate: true,
+      immediate: false,
       handler: function(nv, ov) {
         if (nv)     // 未选择图片文件目录时，文件结果项不存在
           this.Refresh(1, nv)
@@ -99,7 +99,7 @@ export default {
     },
     /* 功能：监听当前打开侧面图文件的量测结果信息 */
     sideCurFileRes: {
-      immediate: true,
+      immediate: false,
       handler: function(nv, ov) {
         if (nv)     // 未选择图片文件目录时，文件结果项不存在
           this.Refresh(2, nv)
@@ -109,12 +109,12 @@ export default {
   methods: {
     /* 功能：刷新页面结果面板信息 */
     Refresh (flag, curFileRes) {
-      let params = flag === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
       
       if (flag == 1) {
         if (curFileRes.isParsed) {
-
-
+          // ！！！！！！由于cva是两点间距离，若采用displayParseRes，则需根据显示比率进行缩放，待改！！
+          let coronalResult = this.CalCoronalResult(curFileRes.originParseRes.frontRes)
+          this.result.coronal = coronalResult
 
           this.isFrontMeasured = true
         } else {
@@ -123,41 +123,45 @@ export default {
         
       } else {
         if (curFileRes.isParsed) {
-          let pelvisResult = this.CalPelvisResult(curFileRes.displayParseRes.pelvis)
+          let sideRes = curFileRes.displayParseRes.sideRes
+
+          let pelvisResult = this.CalPelvisResult(sideRes)
           this.result.pelvis = pelvisResult
 
-          // let sagittalResult = this.CalSagittalResult(measureRes)
-          // this.result.sagittal = sagittalResult
+          // ！！！！！！由于sva是两点间距离，若采用displayParseRes，则需根据显示比率进行缩放，待改！！
+          let sagittalResult = this.CalSagittalResult(curFileRes.originParseRes.sideRes)
+          this.result.sagittal = sagittalResult
           
           this.isSideMeasured = true
         } else {
           this.isSideMeasured = false
         }
-        
       }
 
-      // if (curFileRes.isParsed) {
-      //   this.$store.commit('ChangeCurEntireRes', {
-      //     curEntireRes: JSON.parse(JSON.stringify(this.result))
-      //   })
-      // } 
+      if (curFileRes.isParsed) {
+        this.$store.commit('ChangeCurEntireRes', {
+          curEntireRes: JSON.parse(JSON.stringify(this.result))
+        })
+      } 
       
     },
     /* 功能：计算冠状位参数(cva, cobb)，注：医学图像分辨率固定为96 */
-    CalCoronalResult (measureRes) {
+    CalCoronalResult (frontRes) {
       let cva = null
       let cobb = null
 
-      if (measureRes.c7 && measureRes.sacrum) {
-        let c7_middle_x = (measureRes.c7.xmin + measureRes.c7.xmax) / 2
-        let sacrum_left_x = measureRes.sacrum.xmin
+      // 计算需要c7和sacrum
+      if (frontRes.p6 && frontRes.p7 && frontRes.p0) {
+        let c7_middle_x = (frontRes.p6[0] + frontRes.p7[0]) / 2
+        let sacrum_left_x = frontRes.p0[0]
         cva = ((Math.abs(c7_middle_x - sacrum_left_x)) / 96 * 25.4)
       }
 
-      if (measureRes.cobb1 && measureRes.cobb2) {
-        let upper_angle = (Math.atan((measureRes.cobb1.ymax - measureRes.cobb1.ymin) / (measureRes.cobb1.xmax - measureRes.cobb1.xmin)))
+      // 计算需要cobb1和cobb2
+      if (frontRes.p2 && frontRes.p3 && frontRes.p4 && frontRes.p5) {
+        let upper_angle = (Math.atan((frontRes.p3[1] - frontRes.p2[1]) / (frontRes.p3[0] - frontRes.p2[0])))
                           * 180 / Math.PI
-        let lower_angle = (Math.atan((measureRes.cobb2.ymax - measureRes.cobb2.ymin) / (measureRes.cobb2.xmax - measureRes.cobb2.xmin)))
+        let lower_angle = (Math.atan((frontRes.p5[1] - frontRes.p4[1]) / (frontRes.p5[0] - frontRes.p4[0])))
                           * 180 / Math.PI
         cobb = upper_angle + lower_angle
       }
@@ -169,20 +173,22 @@ export default {
     },
 
     /* 功能：计算矢状位参数(sva, ll)，注：医学图像分辨率固定为96 */
-    CalSagittalResult (measureRes) {
+    CalSagittalResult (sideRes) {
       let sva = null
       let ll = null
 
-      if (measureRes.c7 && measureRes.sacrum) {
-        let c7_middle_x = (measureRes.c7.xmin + measureRes.c7.xmax) / 2
-        let sacrum_left_x = measureRes.sacrum.xmin
+      // 计算需要c7和sacrum
+      if (sideRes.p6 && sideRes.p7 && sideRes.p0) {
+        let c7_middle_x = (sideRes.p6[0] + sideRes.p7[0]) / 2
+        let sacrum_left_x = sideRes.p0[0]
         sva = ((Math.abs(c7_middle_x - sacrum_left_x)) / 96 * 25.4)
       }
 
-      if (measureRes.t12 && measureRes.sacrum) {
-        let upper_angle = (Math.atan((measureRes.t12.ymax - measureRes.t12.ymin) / (measureRes.t12.xmax - measureRes.t12.xmin)))
+      // 计算需要t12和sacrum
+      if (sideRes.p8 && sideRes.p9 && sideRes.p0 && sideRes.p1 ) {
+        let upper_angle = (Math.atan((sideRes.p9[1] - sideRes.p8[1]) / (sideRes.p9[0] - sideRes.p8[0])))
                           * 180 / Math.PI
-        let lower_angle = (Math.atan((measureRes.sacrum.ymax - measureRes.sacrum.ymin) / (measureRes.sacrum.xmax - measureRes.sacrum.xmin)))
+        let lower_angle = (Math.atan((sideRes.p1[1] - sideRes.p0[1]) / (sideRes.p1[0] - sideRes.p0[0])))
                           * 180 / Math.PI
         ll = upper_angle + lower_angle
       }
@@ -194,18 +200,18 @@ export default {
     },
     
     /* 功能：计算骨盆相关参数(ss, pt, pi) */
-    CalPelvisResult (pelvisRes) {
+    CalPelvisResult (sideRes) {
       let ss = null
       let pt = null
       let pi = null
 
-      if(pelvisRes.p1 && pelvisRes.p0)
-        ss = Math.atan((pelvisRes.p1[1] - pelvisRes.p0[1]) / (pelvisRes.p1[0] - pelvisRes.p0[0])) * 180 / Math.PI
+      if(sideRes.p1 && sideRes.p0)
+        ss = Math.atan((sideRes.p1[1] - sideRes.p0[1]) / (sideRes.p1[0] - sideRes.p0[0])) * 180 / Math.PI
       
-      if(pelvisRes.p5 && pelvisRes.p2)
-        pt = 90.0 - (Math.atan((pelvisRes.p2[1] - pelvisRes.p5[1]) / (pelvisRes.p2[0] - pelvisRes.p5[0])) * 180 / Math.PI)
+      if(sideRes.p5 && sideRes.p2)
+        pt = 90.0 - (Math.atan((sideRes.p2[1] - sideRes.p5[1]) / (sideRes.p2[0] - sideRes.p5[0])) * 180 / Math.PI)
       
-      if(pelvisRes.p1 && pelvisRes.p0 && pelvisRes.p5 && pelvisRes.p2)
+      if(sideRes.p1 && sideRes.p0 && sideRes.p5 && sideRes.p2)
         pi = ss + pt
 
       return {

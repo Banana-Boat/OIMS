@@ -73,7 +73,7 @@ export default {
               this.ShowImage(1, this.frontCanvas, imgInfo)
             })
           } else {
-            this.sideCanvas.clear()
+            this.frontCanvas.clear()
           }
         })
       }
@@ -88,7 +88,7 @@ export default {
               this.ShowImage(2, this.sideCanvas, imgInfo)
             })
           } else {
-            this.frontCanvas.clear()
+            this.sideCanvas.clear()
           }
         })
       }
@@ -106,7 +106,6 @@ export default {
           2. 调整图片与画布大小
           3. 若有量测数据，则渲染至画布上 */
     ShowImage (flag, canvas, imgInfo) {
-      console.log(imgInfo)
       let that = this
 
       canvas.clear() // 清空画布
@@ -131,14 +130,14 @@ export default {
         //！！！！！仅绘制骨盆参数，其余参数待添加！！！！！
 
         // 若图片已被量测，则渲染关键点，并设置关键点位置的监听事件
-        if (imgInfo.isParsed) {
+        if (imgInfo.isParsed && flag == 2) {
           let curFilename = this.$store.state.File.params2.curFilename
           let tempResList = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList))
-          let pelvis = imgInfo.displayParseRes.pelvis
+          let sideRes = imgInfo.displayParseRes.sideRes
 
           if (!imgInfo.isScaled) {  // 如果量测点没有缩放过, 将坐标点缩放至显示比例，并更新至全局变量
-            pelvis = that.OriginToDisplay(imgInfo.displayParseRes.pelvis, displayScale)
-            tempResList[curFilename].displayParseRes.pelvis = pelvis
+            sideRes = that.OriginToDisplay(imgInfo.displayParseRes.sideRes, displayScale)
+            tempResList[curFilename].displayParseRes.sideRes = sideRes
             tempResList[curFilename].isScaled = true
 
             this.$store.commit('ChangeResList', {
@@ -170,19 +169,19 @@ export default {
             let p4 = null
             let p5 = null
 
-            if(pelvis.p5 && pelvis.p2)
-              p25Line = new fabric.Line([pelvis.p2[0], pelvis.p2[1], pelvis.p5[0], pelvis.p5[1]], lineAttr)
+            if(sideRes.p5 && sideRes.p2)
+              p25Line = new fabric.Line([sideRes.p2[0], sideRes.p2[1], sideRes.p5[0], sideRes.p5[1]], lineAttr)
 
-            if(pelvis.p1 && pelvis.p0)
-              p01Line = new fabric.Line([pelvis.p0[0], pelvis.p0[1], pelvis.p1[0], pelvis.p1[1]], lineAttr)
+            if(sideRes.p1 && sideRes.p0)
+              p01Line = new fabric.Line([sideRes.p0[0], sideRes.p0[1], sideRes.p1[0], sideRes.p1[1]], lineAttr)
             
-            if(pelvis.p2)
-              p2 = new fabric.Circle({left: pelvis.p2[0] - pRadius, top: pelvis.p2[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
+            if(sideRes.p2)
+              p2 = new fabric.Circle({left: sideRes.p2[0] - pRadius, top: sideRes.p2[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
             
-            if(pelvis.p0)
+            if(sideRes.p0)
               p0 = new fabric.Circle({
-                left: pelvis.p0[0] - pRadius,
-                top: pelvis.p0[1] - pRadius,
+                left: sideRes.p0[0] - pRadius,
+                top: sideRes.p0[1] - pRadius,
                 radius: pRadius,
                 fill: pFill,
                 'self': 'p0',
@@ -190,10 +189,10 @@ export default {
                 'adLine': p01Line ? p01Line : null,
                 'centerLine': p25Line ? p25Line : null})
             
-            if(pelvis.p1)
+            if(sideRes.p1)
               p1 = new fabric.Circle({
-                left: pelvis.p1[0] - pRadius,
-                top: pelvis.p1[1] - pRadius,
+                left: sideRes.p1[0] - pRadius,
+                top: sideRes.p1[1] - pRadius,
                 radius: pRadius,
                 fill: pFill,
                 'self': 'p1',
@@ -201,16 +200,16 @@ export default {
                 'adLine': p01Line ? p01Line : null,
                 'centerLine': p25Line ? p25Line : null})
 
-            if(pelvis.p3)
-              p34Line = new fabric.Line([pelvis.p3[0], pelvis.p3[1], pelvis.p3[0], pelvis.p3[1]], lineAttr)
+            if(sideRes.p3)
+              p34Line = new fabric.Line([sideRes.p3[0], sideRes.p3[1], sideRes.p3[0], sideRes.p3[1]], lineAttr)
             
-            if(pelvis.p5)
-              p5 = new fabric.Circle({left: pelvis.p5[0] - pRadius, top: pelvis.p5[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
+            if(sideRes.p5)
+              p5 = new fabric.Circle({left: sideRes.p5[0] - pRadius, top: sideRes.p5[1] - pRadius, radius: pRadius, fill: pFill, selectable: false, evented: false})
             
-            if(pelvis.p3)
+            if(sideRes.p3)
               p3 = new fabric.Circle({
-                left: pelvis.p3[0] - pRadius,
-                top: pelvis.p3[1] - pRadius,
+                left: sideRes.p3[0] - pRadius,
+                top: sideRes.p3[1] - pRadius,
                 radius: pRadius,
                 fill: pFill,
                 'self': 'p3',
@@ -218,10 +217,10 @@ export default {
                 'adLine': p34Line ? p34Line : null,
                 'centerLine': p25Line ? p25Line : null})
             
-            if(pelvis.p3)
+            if(sideRes.p3)
               p4 = new fabric.Circle({
-                left: pelvis.p3[0] - pRadius,
-                top: pelvis.p3[1] - pRadius,
+                left: sideRes.p3[0] - pRadius,
+                top: sideRes.p3[1] - pRadius,
                 radius: pRadius,
                 fill: pFill,
                 'self': 'p4',
@@ -229,16 +228,16 @@ export default {
                 'adLine': p34Line ? p34Line : null,
                 'centerLine': p25Line ? p25Line : null})
 
-            if(pelvis.p0) p0.hasControls = false
-            if(pelvis.p1) p1.hasControls = false
-            if(pelvis.p2) p2.hasControls = false
-            if(pelvis.p3) p3.hasControls = false
-            if(pelvis.p4) p4.hasControls = false
-            if(pelvis.p5) p5.hasControls = false
+            if(sideRes.p0) p0.hasControls = false
+            if(sideRes.p1) p1.hasControls = false
+            if(sideRes.p2) p2.hasControls = false
+            if(sideRes.p3) p3.hasControls = false
+            if(sideRes.p4) p4.hasControls = false
+            if(sideRes.p5) p5.hasControls = false
 
-            if (pelvis.p4) {
-              p34Line.set({'x2': pelvis.p4[0], 'y2': pelvis.p4[1]})
-              p4.set({'left': pelvis.p4[0] - pRadius, 'top': pelvis.p4[1] - pRadius})
+            if (sideRes.p4) {
+              p34Line.set({'x2': sideRes.p4[0], 'y2': sideRes.p4[1]})
+              p4.set({'left': sideRes.p4[0] - pRadius, 'top': sideRes.p4[1] - pRadius})
             }
 
             if (p01Line) canvas.add(p01Line)
@@ -256,19 +255,19 @@ export default {
             
             // 监听关键点线的位置变化，并重新绘制。
             
-            canvas.on('object:moving', (e) => {
+            canvas.on('object:moved', (e) => {
               if (e.target) {
                 let p = e.target
                 if (['p0', 'p1', 'p3', 'p4'].includes(p.self)) {
                   let curFilename = this.$store.state.File.params2.curFilename
                   let tempResList = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList))
-                  let pelvis = tempResList[curFilename].displayParseRes.pelvis
+                  let sideRes = tempResList[curFilename].displayParseRes.sideRes
                   
                   switch (p.self) {
                     case 'p0':
                       if(p.adLine){ // 区别四个选择分支
                         p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
-                        pelvis.p0 = [p.adLine.x1, p.adLine.y1]
+                        sideRes.p0 = [p.adLine.x1, p.adLine.y1]
                       }
 
                       if(p.centerP && p.adLine)
@@ -280,14 +279,14 @@ export default {
                       if(p.centerLine && p.centerP)
                         p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
                         
-                      if(pelvis.p2 && p.centerP) // 区别四个选择分支
-                        pelvis.p2 = [p.centerP.left, p.centerP.top]
+                      if(sideRes.p2 && p.centerP) // 区别四个选择分支
+                        sideRes.p2 = [p.centerP.left, p.centerP.top]
 
                       break
                     case 'p1':
                       if(p.adLine){
                         p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
-                        pelvis.p1 = [p.adLine.x2, p.adLine.y2]
+                        sideRes.p1 = [p.adLine.x2, p.adLine.y2]
                       }
 
                       if(p.centerP && p.adLine)
@@ -299,14 +298,14 @@ export default {
                       if(p.centerLine && p.centerP)
                         p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
                         
-                      if(pelvis.p2 && p.centerP)
-                        pelvis.p2 = [p.centerP.left, p.centerP.top]
+                      if(sideRes.p2 && p.centerP)
+                        sideRes.p2 = [p.centerP.left, p.centerP.top]
 
                       break
                     case 'p3':
                       if(p.adLine){
                         p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
-                        pelvis.p3 = [p.adLine.x1, p.adLine.y1]
+                        sideRes.p3 = [p.adLine.x1, p.adLine.y1]
                       }
 
                       if(p.centerP && p.adLine){
@@ -319,14 +318,14 @@ export default {
                       if(p.centerLine && p.centerP)
                         p.centerLine.set({'x2': p.centerP.left + pRadius, 'y2': p.centerP.top + pRadius})
 
-                      if(pelvis.p5 && p.centerP)
-                        pelvis.p5 = [p.centerP.left, p.centerP.top]
+                      if(sideRes.p5 && p.centerP)
+                        sideRes.p5 = [p.centerP.left, p.centerP.top]
 
                       break
                     case 'p4':
                       if(p.adLine){
                         p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
-                        pelvis.p4 = [p.adLine.x2, p.adLine.y2]
+                        sideRes.p4 = [p.adLine.x2, p.adLine.y2]
                       }
 
                       if(p.centerP){
@@ -339,21 +338,93 @@ export default {
                       if(p.centerLine && p.centerP)
                         p.centerLine.set({'x2': p.centerP.left + pRadius, 'y2': p.centerP.top + pRadius})
                       
-                      if(pelvis.p5 && p.centerP)
-                        pelvis.p5 = [p.centerP.left, p.centerP.top]
+                      if(sideRes.p5 && p.centerP)
+                        sideRes.p5 = [p.centerP.left, p.centerP.top]
 
                       break
                   }
 
                   // 将拖拽后的点存入全局
-                  console.log(pelvis)
-                  tempResList[curFilename].displayParseRes.pelvis = pelvis
+                  tempResList[curFilename].displayParseRes.sideRes = sideRes
                   that.$store.commit('ChangeResList', {
                     flag: 2,
                     resList: tempResList
                   })
                   // 更新全局变量
                   that.$store.commit('ChangeCanvasData', {flag: flag, canvasData: canvas.toDataURL('image/png')})
+                }
+              }
+            })
+
+            canvas.on('object:moving', (e) => {
+              if (e.target) {
+                let p = e.target
+                if (['p0', 'p1', 'p3', 'p4'].includes(p.self)) {
+                  
+                  switch (p.self) {
+                    case 'p0':
+                      if(p.adLine){ // 区别四个选择分支
+                        p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
+                      }
+
+                      if(p.centerP && p.adLine)
+                        p.centerP.set({
+                          left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
+                          top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
+                        })
+
+                      if(p.centerLine && p.centerP)
+                        p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
+                        
+                      break
+                    case 'p1':
+                      if(p.adLine){
+                        p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
+                      }
+
+                      if(p.centerP && p.adLine)
+                        p.centerP.set({
+                          left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
+                          top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
+                        })
+
+                      if(p.centerLine && p.centerP)
+                        p.centerLine.set({'x1': p.centerP.left + pRadius, 'y1': p.centerP.top + pRadius})
+                        
+                      break
+                    case 'p3':
+                      if(p.adLine){
+                        p.adLine.set({'x1': p.left + pRadius, 'y1': p.top + pRadius})
+                      }
+
+                      if(p.centerP && p.adLine){
+                        p.centerP.set({
+                          left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
+                          top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
+                        })
+                      }
+                        
+                      if(p.centerLine && p.centerP)
+                        p.centerLine.set({'x2': p.centerP.left + pRadius, 'y2': p.centerP.top + pRadius})
+
+                      break
+                    case 'p4':
+                      if(p.adLine){
+                        p.adLine.set({'x2': p.left + pRadius, 'y2': p.top + pRadius})
+                      }
+
+                      if(p.centerP){
+                        p.centerP.set({
+                          left: (p.adLine.x1 + p.adLine.x2) / 2 - pRadius,
+                          top: (p.adLine.y1 + p.adLine.y2) / 2 - pRadius
+                        })
+                      }
+
+                      if(p.centerLine && p.centerP)
+                        p.centerLine.set({'x2': p.centerP.left + pRadius, 'y2': p.centerP.top + pRadius})
+                    
+                      break
+                  }
                 }
               }
             })

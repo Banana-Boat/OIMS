@@ -3,7 +3,7 @@
     <el-card class="file-list-box">
       <div class="file-list-header" slot="header">
         <span class="file-list-title">正面图</span>
-        <i ref="frontRefreshBtn" @click="RefreshFrontFile"
+        <i ref="frontRefreshBtn" @click="Refresh(1)"
           :class="['fa', 'fa-refresh', 'file-list-refresh', isFrontRefreshing?'fa-spin':'']"></i>
       </div>
       <el-table ref="table1" :data="frontListData" :show-header="false" :max-height="tableHeight" @row-click="SelectFrontFile"
@@ -92,46 +92,40 @@ export default {
     frontFileList: {
       immediate: true,
       handler: function(nv, ov) {
-        let fileList = nv
-        let listData = []
-        for (let key in fileList) {
-          listData.push({
-            'filename': key,
-            'path': fileList[key].path,
-            'isMeasured': fileList[key].isMeasured
-          })
-        }
+        this.frontListData = this.GetListData(nv)
         this.$nextTick(() => { // 设置表格中当前选中行
           if (this.frontListData.length > 0) {
             this.$refs.table1.setCurrentRow(this.frontListData[0])
           }
         })
-        this.frontListData = listData
       }
     },
     /* 功能: 监听侧面图文件列表的变化 */
     sideFileList: {
       immediate: true,
       handler: function(nv, ov){
-        var fileList = nv
-        var listData = []
-        for (let key in fileList) {
-          listData.push({
-            'filename': key,
-            'path': fileList[key].path,
-            'isMeasured': fileList[key].isMeasured
-          })
-        }
+        this.sideListData = this.GetListData(nv)
         this.$nextTick(() => { // 设置表格中当前选中行
           if (this.sideListData.length > 0) {
             this.$refs.table2.setCurrentRow(this.sideListData[0])
           }
         })
-        this.sideListData = listData
       }
     },
   },
   methods: {
+    /* 功能：将fileList整理为表格所需格式 */
+    GetListData (fileList) {
+      let listData = []
+      for (let key in fileList) {
+        listData.push({
+          'filename': key,
+          'path': fileList[key].path,
+          'isMeasured': fileList[key].isMeasured
+        })
+      }
+      return listData
+    },
     /* 功能：点击选择正面图列表项 */
     SelectFrontFile (row) {
       this.$store.commit('ChangeCurFilename', {
@@ -145,45 +139,34 @@ export default {
         curFilename: row.filename
       })
     },
-    /* 功能：刷新正面图文件列表 */
-    RefreshFrontFile () {
+    /* 功能：刷新正侧面图文件列表 */
+    Refresh (flag) {
       let that = this
+      let params = flag == 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
 
       // 读文件为异步进行，须将结果数据更改至全局后，才可通知画布与结果窗更改
       that.$store.dispatch('LoadDir', {
-        flag: 1,
-        path: that.$store.state.File.params1.dirPath
+        flag: flag,
+        path: params.dirPath
       }).then(() => {
-        that.LoadLocalResultFile(1).then(() => {
-          this.$store.dispatch('ChangeCurFilenameToTheFirst', {flag: 1})
+        that.LoadLocalResultFile(flag).then(() => {
+          this.$store.dispatch('ChangeCurFilenameToTheFirst', {flag: flag})
         })
       })
 
-      that.isFrontRefreshing = true
-      let clock = setInterval(() => {
-        that.isFrontRefreshing = false
-        clearInterval(clock)
-      }, 1000)
-    },
-    /* 功能：刷新侧面图文件列表 */
-    RefreshSideFile () {
-      let that = this
-
-      // 读文件为异步进行，须将结果数据更改至全局后，才可通知画布与结果窗更改
-      that.$store.dispatch('LoadDir', {
-        flag: 2,
-        path: that.$store.state.File.params2.dirPath
-      }).then(() => {
-        that.LoadLocalResultFile(2).then(() => {
-          this.$store.dispatch('ChangeCurFilenameToTheFirst', {flag: 2})
-        })
-      })
-
-      that.isSideRefreshing = true
-      let clock = setInterval(() => {
-        that.isSideRefreshing = false
-        clearInterval(clock)
-      }, 1000)
+      if (flag == 1) {
+        that.isFrontRefreshing = true
+        let clock = setInterval(() => {
+          that.isFrontRefreshing = false
+          clearInterval(clock)
+        }, 1000)
+      } else {
+        that.isSideRefreshing = true
+        let clock = setInterval(() => {
+          that.isSideRefreshing = false
+          clearInterval(clock)
+        }, 1000)
+      }
     },
     /* 加载本地量测数据 */
     LoadLocalResultFile (flag) {
@@ -200,25 +183,19 @@ export default {
 
               for (let filename in imgList['image-list']) {
                 let item = imgList['image-list'][filename]
+
                 if (flag == 1) {
-                  tempResList[filename]['measureRes'] = {
-                    'c7': item.c7 ? item.c7 : null,
-                    'sacrum': item.sacrum ? item.sacrum : null,
-                    'cobb1': item.cobb1 ? item.cobb1 : null,
-                    'cobb2': item.cobb2 ? item.cobb2 : null
-                  }
+                  tempResList[filename].originParseRes.frontRes = item
+                  tempResList[filename].displayParseRes.frontRes = item
                 } else {
-                  tempResList[filename]['measureRes'] = {
-                    'femoralhead1': item.femoralhead1 ? item.femoralhead1 : null,
-                    'femoralhead2': item.femoralhead2 ? item.femoralhead2 : null,
-                    'sacrum': item.sacrum ? item.sacrum : null,
-                    'c7': item.c7 ? item.c7 : null,
-                    't12': item.t12 ? item.t12 : null
-                  }
+                  tempResList[filename].originParseRes.sideRes = item
+                  tempResList[filename].displayParseRes.sideRes = item
                 }
                 
                 tempFileList[filename]['isMeasured'] = true
-                tempResList[filename]['isMeasured'] = true
+                tempResList[filename]['isParsed'] = true
+                tempResList[filename]['isScaled'] = false
+                
               }
 
               // 修改两个列表
