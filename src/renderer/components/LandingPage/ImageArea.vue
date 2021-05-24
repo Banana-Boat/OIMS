@@ -2,11 +2,11 @@
   <div class="image-area-content">
     <div ref="imgBox" @click="SelectImgBox(1)"
         :class="['img-box', selectedBox===1?'img-box-selected':'']">
-      <canvas id="canvas1"></canvas>
+      <canvas id="frontCanvas"></canvas>
     </div>
     <div @click="SelectImgBox(2)"
         :class="['img-box', selectedBox===2?'img-box-selected':'']">
-      <canvas id="canvas2"></canvas>
+      <canvas id="sideCanvas"></canvas>
     </div>
   </div>
 </template>
@@ -20,19 +20,42 @@
 import { fabric } from 'fabric'
 import { convertToJsonString } from 'fast-xml-parser'
 
-var canvas1 = null // 正位图画布
-var canvas2 = null // 侧位图画布
-
 export default {
   data () {
     return {
+      frontCanvas: null, // 正位图画布
+      sideCanvas: null  // 侧位图画布
     }
   },
+  created(){
+    
+  },
+  mounted () {
+    const that = this
+    that.$nextTick(() => {  // 当组件被挂载完毕时
+      // 创建fabric画布，并根据页面布局改变画布高度
+      this.sideCanvas = new fabric.Canvas('sideCanvas')
+      this.frontCanvas = new fabric.Canvas('frontCanvas')
+      let imgBoxHeight = this.$refs.imgBox.clientHeight
+      this.sideCanvas.setHeight(imgBoxHeight - 5)
+      this.frontCanvas.setHeight(imgBoxHeight - 5)
+
+      // 渲染当前打开的图片
+      if (this.frontCurFilename) {
+        let frontImgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params1.resList[this.frontCurFilename]))
+        this.ShowImage(1, this.frontCanvas, frontImgInfo)
+      }
+      if (this.sideCurFilename) {
+        let sideImgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList[this.sideCurFilename]))
+        this.ShowImage(2, this.sideCanvas, sideImgInfo)
+      }
+    })
+  },
   computed: {
-    img1Name () { // 当前打开的正面图文件名
+    frontCurFilename () { // 当前打开的正面图文件名
       return this.$store.state.File.params1.curFilename
     },
-    img2Name () { // 当前打开的侧面图文件名
+    sideCurFilename () { // 当前打开的侧面图文件名
       return this.$store.state.File.params2.curFilename
     },
     selectedBox () { // 当前选中的图片框，用于指定编辑的图片对象（1：正位图区域，2：侧位图区域）
@@ -40,33 +63,36 @@ export default {
     }
   },
   watch: {
-    img1Name (nv, ov) { // 监听当前打开图片量测结果的变化
-      if (nv !== '') {
-        let imgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params1.resList[nv]))
-        this.ShowImage(1, canvas1, imgInfo)
-      } else {
-        canvas1.clear()
+    frontCurFilename: {
+      immediate: false, // 第一次绑定监听对象时不执行handler
+      handler: function (nv, ov) {
+        this.$nextTick(() => {
+          if (nv) {
+            let imgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params1.resList[nv]))
+            this.$nextTick(() => {
+              this.ShowImage(1, this.frontCanvas, imgInfo)
+            })
+          } else {
+            this.sideCanvas.clear()
+          }
+        })
       }
     },
-    img2Name (nv, ov) {
-      if (nv !== '') {
-        let imgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList[nv]))
-        this.ShowImage(2, canvas2, imgInfo)
-      } else {
-        canvas2.clear()
+    sideCurFilename: {
+      immediate: false,
+      handler: function (nv, ov) {
+        this.$nextTick(() => {
+          if (nv) {
+            let imgInfo = JSON.parse(JSON.stringify(this.$store.state.File.params2.resList[nv]))
+            this.$nextTick(() => {
+              this.ShowImage(2, this.sideCanvas, imgInfo)
+            })
+          } else {
+            this.frontCanvas.clear()
+          }
+        })
       }
     }
-  },
-  mounted () {
-    const that = this
-    // 当组件被挂载完毕时，创建fabric画布，并根据页面布局改变画布高度
-    that.$nextTick(() => {
-      canvas1 = new fabric.Canvas('canvas1')
-      canvas2 = new fabric.Canvas('canvas2')
-      let imgBoxHeight = this.$refs.imgBox.clientHeight
-      canvas1.setHeight(imgBoxHeight - 5)
-      canvas2.setHeight(imgBoxHeight - 5)
-    })
   },
   methods: {
     /* 功能：选择正/侧位图显示框 */
@@ -82,6 +108,7 @@ export default {
     ShowImage (flag, canvas, imgInfo) {
       console.log(imgInfo)
       let that = this
+
 
       canvas.clear() // 清空画布
 
@@ -333,7 +360,6 @@ export default {
       }
     },
     /* 功能：解析点坐标 */
-    // 放缩倍率调试！！！！待改！！！！
     ParseResult (measureRes, displayScale) {
       let parseRes = {}
       console.log(measureRes)
@@ -363,7 +389,7 @@ export default {
         p5 = p3
         p4 = null
       }
-      // 第二个股骨头不存在时，及等同于第一个股骨头
+      // 当第二个股骨头不存在时，即等同于第一个股骨头
       if (measureRes.femoralhead2) {
         let f2Xmin = Number.parseInt(measureRes.femoralhead2.xmin * displayScale)
         let f2Ymin = Number.parseInt(measureRes.femoralhead2.ymin * displayScale)

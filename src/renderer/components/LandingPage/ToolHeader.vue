@@ -133,6 +133,8 @@ export default {
         this.$store.dispatch('LoadDir', {
           flag: 1,
           path: result[0]
+        }).then(() => {
+          this.$store.dispatch('ChangeCurFilenameToTheFirst', {flag: 1})
         })
       }
     },
@@ -151,6 +153,8 @@ export default {
         this.$store.dispatch('LoadDir', {
           flag: 2,
           path: result[0]
+        }).then(() => {
+          this.$store.dispatch('ChangeCurFilenameToTheFirst', {flag: 2})
         })
       }
     },
@@ -279,20 +283,19 @@ export default {
     },
 
 
-    // ！！！！！此函数待调试！！！！
     /* 功能：将侧面图还原后的识别结果存入resultList与本地文件，并在fileList中标注是否量测 */
     WriteSideResult(imgList) {
       let scale = this.$store.state.File.preprocessScale
       let params = this.$store.state.File.params2
-      let tempResList = JSON.parse(JSON.stringify(params.resList))
-      let tempFileList = JSON.parse(JSON.stringify(params.fileList))
+      let tempResList = JSON.parse(JSON.stringify(params.resList))  // 创建副本，进行修改
+      let tempFileList = JSON.parse(JSON.stringify(params.fileList))  // 创建副本，进行修改
       let tempImgList = []     // 用于存放侧面图项
       
       imgList.forEach(item => {
         if(item.name[0] == 's') { // 侧面图文件名前带有"s_"的前缀
-          let fileName = item.name.split('_')[1]
-          if (tempResList.hasOwnProperty(fileName)) {
-            item.name = fileName    // 删去标志正侧图的前缀
+          let filename = item.name.split('_')[1]
+          if (tempResList.hasOwnProperty(filename)) {
+            item.name = filename    // 删去标志正侧图的前缀
 
             if(item.hasOwnProperty('femoralhead1'))
               for(let key in item['femoralhead1']) {
@@ -317,9 +320,9 @@ export default {
             
             tempImgList.push(item)
 
-            tempFileList[fileName]['isMeasured'] = true
-            tempResList[fileName]['isMeasured'] = true
-            tempResList[fileName]['measureRes'] = {
+            tempFileList[filename]['isMeasured'] = true
+            tempResList[filename]['isMeasured'] = true
+            tempResList[filename]['measureRes'] = {
               'femoralhead1': item.femoralhead1 ? item.femoralhead1 : null,
               'femoralhead2': item.femoralhead2 ? item.femoralhead2 : null,
               'sacrum': item.sacrum ? item.sacrum : null,
@@ -360,15 +363,15 @@ export default {
     WriteFrontResult(imgList) {
       let scale = this.$store.state.File.preprocessScale
       let params = this.$store.state.File.params1
-      let tempResList = JSON.parse(JSON.stringify(params.resList))
-      let tempFileList = JSON.parse(JSON.stringify(params.fileList))
+      let tempResList = JSON.parse(JSON.stringify(params.resList))  // 创建副本，进行修改
+      let tempFileList = JSON.parse(JSON.stringify(params.fileList))  // 创建副本，进行修改
       let tempImgList = []     // 用于存放正面图
       
       imgList.forEach(item => {
         if(item.name[0] == 'f') { // 正面图文件名前带有"f_"的前缀
-          let fileName = item.name.split('_')[1]
-          if (tempResList.hasOwnProperty(fileName)) {
-            item.name = fileName    // 删去标志正侧图的前缀
+          let filename = item.name.split('_')[1]
+          if (tempResList.hasOwnProperty(filename)) {
+            item.name = filename    // 删去标志正侧图的前缀
 
             if(item.hasOwnProperty('c7'))
               for(let key in item['c7']) {
@@ -389,9 +392,9 @@ export default {
             
             tempImgList.push(item)
             
-            tempFileList[fileName]['isMeasured'] = true
-            tempResList[fileName]['isMeasured'] = true
-            tempResList[fileName]['measureRes'] = {
+            tempFileList[filename]['isMeasured'] = true
+            tempResList[filename]['isMeasured'] = true
+            tempResList[filename]['measureRes'] = {
               'c7': item.c7 ? item.c7 : null,
               'sacrum': item.sacrum ? item.sacrum : null,
               'cobb1': item.cobb1 ? item.cobb1 : null,
@@ -452,6 +455,7 @@ export default {
         }
       })
     },
+    // ！！！！！！中文乱码！！！！待改
     /* 功能：将量测结果与图片保存为PDF格式文件 */
     Print () {
       try {
@@ -470,11 +474,21 @@ export default {
             pdf.text('Health Report:', 100, 147)
             let res = this.$store.state.File.curEntireRes
             pdf.text('ss:', 100, 157)
-            pdf.text(110, 157, res.ss)
+            pdf.text(110, 157, res.pelvis.ss)
             pdf.text('pt:', 100, 167)
-            pdf.text(110, 167, res.pt)
+            pdf.text(110, 167, res.pelvis.pt)
             pdf.text('pi:', 100, 177)
-            pdf.text(110, 177, res.pi)
+            pdf.text(110, 177, res.pelvis.pi)
+
+            pdf.text('sva:', 100, 187)
+            pdf.text(110, 187, res.sagittal.sva)
+            pdf.text('ll:', 100, 197)
+            pdf.text(110, 197, res.sagittal.ll)
+            pdf.text('cva:', 100, 207)
+            pdf.text(110, 207, res.coronal.cva)
+            pdf.text('cva:', 100, 217)
+            pdf.text(110, 217, res.coronal.cva)
+
           } else {
             pdf.text('There is No Health Data.', 100, 147)
           }

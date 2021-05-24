@@ -8,7 +8,7 @@ const state = {
     'preprocessDirPath': './tmp/img/front_preprocess/', // 图片预处理后的保存路径
     'fileList': {}, // 文件列表（用于维护文件列表栏）
     'resList': {}, // 量测结果列表（用于维护图片的量测结果，包含每一项）
-    'curFilename': '', // 当前打开的文件文件名
+    'curFilename': null, // 当前打开的文件文件名
     'canvasData': null, // 画布
     'resXmlPath': './tmp/xml/front_result.xml',
   },
@@ -19,18 +19,24 @@ const state = {
     'preprocessDirPath': './tmp/img/side_preprocess/',
     'fileList': {},
     'resList': {},
-    'curFilename': '',
+    'curFilename': null,
     'canvasData': null,
     'resXmlPath': './tmp/xml/side_result.xml'
   },
   selectedImgBox: 1, // 当前选中的图片框
   isMeasuring: false, // 是否在量测中
-  curEntireRes: null, // 当前文件整体量测结果（正+侧）
+  curEntireRes: null, // 当前文件整体量测结果（用于打印输出）
   isShowResultBox: false, //是否显示结果面板
   preprocessScale: 5 // 预处理图片缩放倍率
 }
 
 const mutations = {
+  // 清空state
+  clear(state){
+    for(let i in state){
+      delete state[i]
+    }
+  },
   // 修改图片目录的路径。flag=1：正面图，flag=2：侧面图
   ChangeDirPath (state, payload) {
     var params = payload.flag === 1 ? state.params1 : state.params2
@@ -56,15 +62,15 @@ const mutations = {
     var params = payload.flag === 1 ? state.params1 : state.params2
     params.canvasData = payload.canvasData
   },
-  // 修改当前正侧图的综合健康数据
-  ChangeCurEntireRes (state, payload) {
-    state.curEntireRes = payload.curEntireRes
-  },
   // 切换选中的图片框
   ChangeSelectedImgBox (state, payload) {
     if (state.selectedImgBox !== payload.flag) {
       state.selectedImgBox = payload.flag
     }
+  },
+  // 修改当前正侧图的综合健康数据
+  ChangeCurEntireRes (state, payload) {
+    state.curEntireRes = payload.curEntireRes
   },
   // 改变量测状态
   ChangeMeasureState (state, payload) {
@@ -77,50 +83,59 @@ const mutations = {
 }
 
 const actions = {
-  // 公用操作。读取文件目录，修改文件列表（读文件为异步操作）。flag=1：正面图，flag=2：侧面图
+  /* 功能：修改curFilename为列表第一项 */
+  ChangeCurFilenameToTheFirst (context, payload) {
+    let params = payload.flag === 1 ? context.state.params1 : context.state.params2
+    if (Object.keys(params.fileList).length !== 0) {
+      context.commit('ChangeCurFilename', {
+        flag: payload.flag,
+        curFilename: Object.keys(params.fileList)[0]
+      })
+    } else {
+      context.commit('ChangeCurFilename', {
+        flag: payload.flag,
+        curFilename: ''
+      })
+    }
+  },
+  /* 功能：读取文件目录，修改文件列表（读文件为异步操作）。flag=1：正面图，flag=2：侧面图 */ 
   LoadDir (context, payload) {
-    fs.readdir(payload.path, (err, files) => {
-      if (err) {
-        return console.error(err)
-      }
-      let tempFileList = {}
-      let fileType = ['jpg', 'jpeg']
-      let tempResList = {}
-      files.forEach((file) => {
-        if (fileType.includes(file.split('.').pop().toLowerCase())) {
-          tempFileList[file] = {
-            'path': payload.path + '\\' + file,
-            'isMeasured': false
+    return new Promise((resolve, reject) => {
+      fs.readdir(payload.path, (err, files) => {
+        if (err)
+          reject()
+        
+        let tempFileList = {}
+        let fileType = ['jpg', 'jpeg']
+        let tempResList = {}
+        files.forEach((file) => {
+          if (fileType.includes(file.split('.').pop().toLowerCase())) {
+            tempFileList[file] = {
+              'path': payload.path + '\\' + file,
+              'isMeasured': false
+            }
+            tempResList[file] = {
+              'path': payload.path + '\\' + file,
+              'isMeasured': false,
+              'isParsed': false,
+              'measureRes': {}, // 量测结果
+              'parseRes': {} // 解析结果（点集、参数）
+            }
           }
-          tempResList[file] = {
-            'path': payload.path + '\\' + file,
-            'isMeasured': false,
-            'isParsed': false,
-            'measureRes': {}, // 量测结果
-            'parseRes': {} // 解析结果（点集、参数）
-          }
-        }
-      })
-      context.commit('ChangeFileList', {
-        flag: payload.flag,
-        fileList: tempFileList
-      })
-      context.commit('ChangeResList', {
-        flag: payload.flag,
-        resList: tempResList
-      })
-      if (Object.keys(tempFileList).length !== 0) {
-        context.commit('ChangeCurFilename', {
-          flag: payload.flag,
-          curFilename: Object.keys(tempFileList)[0]
         })
-      } else {
-        context.commit('ChangeCurFilename', {
+        context.commit('ChangeFileList', {
           flag: payload.flag,
-          curFilename: ''
+          fileList: tempFileList
         })
-      }
+        context.commit('ChangeResList', {
+          flag: payload.flag,
+          resList: tempResList
+        })
+        
+        resolve()
+      })
     })
+    
   }
 }
 

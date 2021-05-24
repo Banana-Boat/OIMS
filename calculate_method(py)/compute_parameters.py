@@ -1,4 +1,4 @@
-from math import degrees,atan,fabs
+from math import degrees,atan,fabs,atan2
 
 
 def compute_sva(c7side, sacrum, resolution):
@@ -56,13 +56,18 @@ def compute_cobb(upper, lower):
         该函数计算方式为分别计算这两条线与水平方向夹角，然后相加
     """
     #                            ymax   -   ymin     /   xmax    - xmin
-    upper_angle = degrees(atan(upper[3] - upper[1]) / (upper[2] - upper[1]))
+    upper_angle = degrees(atan((upper[3] - upper[1]) / (upper[2] - upper[0])))
     #                            ymax   -   ymin     /   xmax    - xmin
-    lower_angle = degrees(atan(lower[3] - lower[1]) / (lower[2] - lower[1]))
+    lower_angle = degrees(atan((lower[3] - lower[1]) / (lower[2] - lower[0])))
+
     cobb_angle=upper_angle+lower_angle
 
     return cobb_angle
 
+upper=[336,686 ,413, 717]
+lower=[316 ,856 ,388, 889]
+cobb=compute_cobb(upper,lower)
+print(cobb)
 
 def compute_LL(T12, sacrum):
     """计算LL，单位：°
@@ -74,9 +79,15 @@ def compute_LL(T12, sacrum):
         该函数计算方式为分别计算这两条线与水平方向夹角，然后相加
     """
     #                            ymax   -   ymin     /   xmax    - xmin
-    upper_angle = degrees(atan(T12[3] - T12[1]) / (T12[2] - T12[1]))
+    upper_angle = degrees(atan((T12[3] - T12[1]) / (T12[2] - T12[0])))
     #                            ymax   -   ymin     /   xmax    - xmin
-    lower_angle = degrees(atan(sacrum[3] - sacrum[1]) / (sacrum[2] - sacrum[1]))
+    lower_angle = degrees(atan((sacrum[3] - sacrum[1]) / (sacrum[2] - sacrum[0])))
     LL=upper_angle+lower_angle
 
     return LL
+
+T12=[251 ,729 ,302, 738]
+sacrum=[291, 301 ,340 ,319]
+LL=compute_LL(T12,sacrum)
+print(LL)
+
