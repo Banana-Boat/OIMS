@@ -27,7 +27,7 @@
     <el-card class="file-list-box">
       <div class="file-list-header" slot="header">
         <span class="file-list-title">侧面图</span>
-        <i ref="sideRefreshBtn" @click="RefreshSideFile"
+        <i ref="sideRefreshBtn" @click="Refresh(2)"
           :class="['fa', 'fa-refresh', 'file-list-refresh', isSideRefreshing?'fa-spin':'']"></i>
       </div>
       <el-table ref="table2" :data="sideListData" :show-header="false" :max-height="tableHeight" @row-click="SelectSideFile"

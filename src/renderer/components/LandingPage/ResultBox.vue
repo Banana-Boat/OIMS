@@ -72,6 +72,13 @@ export default {
       isShowStandardDialog: false // 是否显示分型标准的弹窗
     }
   },
+  created() {
+    // let params = this.$store.state.File.params1
+    // if (params.resList[params.curFilename]){
+
+    // }
+    //   return JSON.parse(JSON.stringify(params.resList[params.curFilename]))
+  },
   computed: {
     frontCurFileRes () {
       let params = this.$store.state.File.params1
@@ -91,7 +98,7 @@ export default {
   watch: {
     /* 功能：监听当前打开正面图文件的量测结果信息 */
     frontCurFileRes: {
-      immediate: false,
+      immediate: true,
       handler: function(nv, ov) {
         if (nv)     // 未选择图片文件目录时，文件结果项不存在
           this.Refresh(1, nv)
@@ -99,7 +106,7 @@ export default {
     },
     /* 功能：监听当前打开侧面图文件的量测结果信息 */
     sideCurFileRes: {
-      immediate: false,
+      immediate: true,
       handler: function(nv, ov) {
         if (nv)     // 未选择图片文件目录时，文件结果项不存在
           this.Refresh(2, nv)
@@ -109,6 +116,7 @@ export default {
   methods: {
     /* 功能：刷新页面结果面板信息 */
     Refresh (flag, curFileRes) {
+      let result = {}
       
       if (flag == 1) {
         if (curFileRes.isParsed) {
@@ -118,6 +126,7 @@ export default {
 
           this.isFrontMeasured = true
         } else {
+          this.result.coronal = {cva: '区域未识别',cobb: '区域未识别'}
           this.isFrontMeasured = false
         }
         
@@ -134,15 +143,21 @@ export default {
           
           this.isSideMeasured = true
         } else {
+          this.result = {
+            pelvis: {
+              ss: '区域未识别', pt: '区域未识别', pi: '区域未识别'
+            },
+            sagittal: {
+              sva: '', ll: ''
+            }
+          },
           this.isSideMeasured = false
         }
       }
 
-      if (curFileRes.isParsed) {
-        this.$store.commit('ChangeCurEntireRes', {
-          curEntireRes: JSON.parse(JSON.stringify(this.result))
-        })
-      } 
+      this.$store.commit('ChangeCurEntireRes', {
+        curEntireRes: JSON.parse(JSON.stringify(this.result))
+      })
       
     },
     /* 功能：计算冠状位参数(cva, cobb)，注：医学图像分辨率固定为96 */

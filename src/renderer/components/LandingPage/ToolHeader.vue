@@ -79,6 +79,7 @@
 
 import MeasureDialog from './MeasureDialog'
 import {jsPDF} from 'jspdf'
+import { Addfont } from '../../../../static/font'
 const {dialog} = require('electron').remote
 const fs = require('fs')
 const parser = require('fast-xml-parser')
@@ -500,6 +501,11 @@ export default {
         let canvasData2 = this.$store.state.File.params2.canvasData
         if (canvasData1 !== null && canvasData2 !== null) {
           let pdf = new jsPDF()
+          // jsPDF存在中文乱码，故需手动导入黑体字体文件
+          Addfont(pdf)
+          pdf.addFont('simhei', 'simhei', 'normal')
+          pdf.setFont('simhei')
+
           // 待改，尽量写成相对定位
           pdf.addImage(canvasData1, 'JPEG', 20, 15, 249 / 4, 500 / 4)
           pdf.text(filename1, 40, 10)

@@ -26,7 +26,7 @@ function createWindow () {
     icon: '../../static/ai_bone_ruler.ico'
   })
   // 打开调试窗口！！！
-  //mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
   Menu.setApplicationMenu(null)
   mainWindow.maximize()

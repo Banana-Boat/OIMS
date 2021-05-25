@@ -27,9 +27,6 @@ export default {
       sideCanvas: null  // 侧位图画布
     }
   },
-  created(){
-    
-  },
   mounted () {
     const that = this
     that.$nextTick(() => {  // 当组件被挂载完毕时
