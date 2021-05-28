@@ -79,12 +79,13 @@
 
 import MeasureDialog from './MeasureDialog'
 import {jsPDF} from 'jspdf'
-import { Addfont } from '../../../../static/font'
 const {dialog} = require('electron').remote
 const fs = require('fs')
 const parser = require('fast-xml-parser')
 const axios = require('axios')
-const he = require('he')
+const { shell } = require('electron')
+
+console.log(fs.readdirSync(__static)) 
 
 export default {
   components: {
@@ -350,7 +351,7 @@ export default {
       
       // 测试代码！！！读取并显示本地保存的测量结果，渲染至页面
       let that = this
-      fs.readFile('./tmp/xml/test_result.xml', 'utf-8', (err, res) => {
+      fs.readFile(__static + '/test_result.xml', 'utf-8', (err, res) => {
         let imgList = parser.parse(res)['image-list']['image']
         if (!Array.isArray(imgList)) {
           imgList = [imgList]
@@ -491,7 +492,8 @@ export default {
       })
     },
 
-    // ！！！！！！中文乱码！！！！待改
+    // ！！！！！！打包后/static/font.js文件找不到！！！！！！
+    
     /* 功能：将量测结果与图片保存为PDF格式文件 */
     Print () {
       try {
@@ -501,10 +503,11 @@ export default {
         let canvasData2 = this.$store.state.File.params2.canvasData
         if (canvasData1 !== null && canvasData2 !== null) {
           let pdf = new jsPDF()
+          
           // jsPDF存在中文乱码，故需手动导入黑体字体文件
-          Addfont(pdf)
-          pdf.addFont('simhei', 'simhei', 'normal')
-          pdf.setFont('simhei')
+          // require(__static + '\\\\font').Addfont(pdf)
+          // pdf.addFont('simhei', 'simhei', 'normal')
+          // pdf.setFont('simhei')
 
           // 待改，尽量写成相对定位
           pdf.addImage(canvasData1, 'JPEG', 20, 15, 249 / 4, 500 / 4)
@@ -514,21 +517,34 @@ export default {
           if (this.$store.state.File.curEntireRes !== null) {
             pdf.text('Health Report:', 100, 147)
             let res = this.$store.state.File.curEntireRes
-            pdf.text('ss:', 100, 157)
-            pdf.text(110, 157, res.pelvis.ss)
-            pdf.text('pt:', 100, 167)
-            pdf.text(110, 167, res.pelvis.pt)
-            pdf.text('pi:', 100, 177)
-            pdf.text(110, 177, res.pelvis.pi)
-
-            pdf.text('sva:', 100, 187)
-            pdf.text(110, 187, res.sagittal.sva)
-            pdf.text('ll:', 100, 197)
-            pdf.text(110, 197, res.sagittal.ll)
-            pdf.text('cva:', 100, 207)
-            pdf.text(110, 207, res.coronal.cva)
-            pdf.text('cva:', 100, 217)
-            pdf.text(110, 217, res.coronal.cva)
+            if (res.pelvis.ss) {
+              pdf.text('ss:', 100, 157)
+              pdf.text(115, 157, res.pelvis.ss)
+            }
+            if (res.pelvis.pt) {
+              pdf.text('pt:', 100, 167)
+              pdf.text(115, 167, res.pelvis.pt)
+            }
+            if (res.pelvis.pi) {
+              pdf.text('pi:', 100, 177)
+              pdf.text(115, 177, res.pelvis.pi)
+            }
+            if (res.sagittal.sva) {
+              pdf.text('sva:', 100, 187)
+              pdf.text(115, 187, res.sagittal.sva)
+            }
+            if (res.sagittal.ll) {
+              pdf.text('ll:', 100, 197)
+              pdf.text(115, 197, res.sagittal.ll)
+            }
+            if (res.coronal.cva) {
+              pdf.text('cva:', 100, 207)
+              pdf.text(115, 207, res.coronal.cva)
+            }
+            if (res.coronal.cobb) {
+              pdf.text('cobb:', 100, 217)
+              pdf.text(115, 217, res.coronal.cobb)
+            }
 
           } else {
             pdf.text('There is No Health Data.', 100, 147)
@@ -540,7 +556,11 @@ export default {
           })
           if (result) {
             let path = result[0] + '/' + filename1 + '_' + filename2 + '.pdf'
-            pdf.save(path, {returnPromise: true}).then(this.$message.success('图片结果PDF文件已保存在指定位置'))
+            pdf.save(path, {returnPromise: true}).then(
+              this.$message.success('图片结果PDF文件已保存在指定位置'
+            ))
+            
+            shell.openItem(__static + '\\000000_量测报告.pdf')
           }
         } else {
           throw new Error(1)

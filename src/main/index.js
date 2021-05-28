@@ -1,19 +1,39 @@
 'use strict'
 
-import { app, BrowserWindow, Menu } from 'electron'
+import { app, BrowserWindow, Menu, ipcRenderer } from 'electron'
+const ipcMain = require('electron').ipcMain
+const path = require("path")
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
 if (process.env.NODE_ENV !== 'development') {
-  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+  global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
 let mainWindow = null
+let loadingWindow = null
 
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
+
+function  createLoadingWindow () {   
+  loadingWindow = new BrowserWindow({
+    height: 350,
+    width: 350,
+    show: true,
+    transparent: true,
+    maximizable: false,
+    frame: false
+  })
+
+  loadingWindow.loadURL(path.join(__static, '\\loading.html'))
+
+  loadingWindow.on('closed', () => {
+    loadingWindow = null
+  })
+}
 
 function createWindow () {
   mainWindow = new BrowserWindow({
@@ -23,14 +43,13 @@ function createWindow () {
     webPreferences: {
       webSecurity: false
     },
-    icon: '../../static/ai_bone_ruler.ico'
+    icon: __static + '/ai_bone_ruler.ico'
   })
   // 打开调试窗口！！！
   mainWindow.webContents.openDevTools()
 
   Menu.setApplicationMenu(null)
   mainWindow.maximize()
-  mainWindow.show()
 
   mainWindow.loadURL(winURL)
 
@@ -40,7 +59,16 @@ function createWindow () {
 }
 
 app.on('ready', () => {
+  createLoadingWindow()
   createWindow()
+
+  ipcMain.on('close-loading-window', () => {
+    if(loadingWindow) {
+      loadingWindow.close()
+    }
+    mainWindow.show()
+  })
+
   // 创建临时文件夹
   var fs = require('fs')
   try {

@@ -10,22 +10,49 @@
         <div class="front-content-box"  v-if="isFrontMeasured">
           <div class="content-group">
             <span class="content-group-title">冠状位参数</span>
-            <span><span style="font-weight:bold;">cva</span> : {{result.coronal.cva}}</span>
-            <span><span style="font-weight:bold;">cobb</span> : {{result.coronal.cobb}}</span>
+            <table class="result-table">
+              <tr>
+                <td><span>cva</span></td>
+                <td><span>{{result.coronal.cva}}</span></td>
+              </tr>
+              <tr>
+                <td><span>cobb</span></td>
+                <td><span>{{result.coronal.cobb}}</span></td>
+              </tr>
+            </table>
           </div>
         </div>
 
         <div class="side-content-box"  v-if="isSideMeasured">
           <div class="content-group">
             <span class="content-group-title">矢状位参数</span>
-            <span><span style="font-weight:bold;">sva</span> : {{result.sagittal.sva}}</span>
-            <span><span style="font-weight:bold;">ll</span> : {{result.sagittal.ll}}</span>
+            <table class="result-table">
+              <tr>
+                <td><span>sva</span></td>
+                <td><span>{{result.sagittal.sva}}</span></td>
+              </tr>
+              <tr>
+                <td><span>ll</span></td>
+                <td><span>{{result.sagittal.ll}}</span></td>
+              </tr>
+            </table>
           </div>
           <div class="content-group">
             <span class="content-group-title">骨盆参数</span>
-            <span><span style="font-weight:bold;">ss</span> : {{result.pelvis.ss}}</span>
-            <span><span style="font-weight:bold;">pt</span> : {{result.pelvis.pt}}</span>
-            <span><span style="font-weight:bold;">pi</span> : {{result.pelvis.pi}}</span>
+            <table class="result-table">
+              <tr>
+                <td><span>ss</span></td>
+                <td><span>{{result.pelvis.ss}}</span></td>
+              </tr>
+              <tr>
+                <td><span>pt</span></td>
+                <td><span>{{result.pelvis.pt}}</span></td>
+              </tr>
+              <tr>
+                <td><span>pi</span></td>
+                <td><span>{{result.pelvis.pi}}</span></td>
+              </tr>
+            </table>
           </div>
         </div>
       </div>
@@ -67,17 +94,11 @@ export default {
           cobb: ''
         }
       },
+      fakeRes: [],      // 用于拍视频  待删！！！！！
       isFrontMeasured: false, // 正面图是否被量测的标志位
       isSideMeasured: false, // 侧面图是否被量测的标志位
       isShowStandardDialog: false // 是否显示分型标准的弹窗
     }
-  },
-  created() {
-    // let params = this.$store.state.File.params1
-    // if (params.resList[params.curFilename]){
-
-    // }
-    //   return JSON.parse(JSON.stringify(params.resList[params.curFilename]))
   },
   computed: {
     frontCurFileRes () {
@@ -98,7 +119,7 @@ export default {
   watch: {
     /* 功能：监听当前打开正面图文件的量测结果信息 */
     frontCurFileRes: {
-      immediate: true,
+      immediate: false,
       handler: function(nv, ov) {
         if (nv)     // 未选择图片文件目录时，文件结果项不存在
           this.Refresh(1, nv)
@@ -106,7 +127,7 @@ export default {
     },
     /* 功能：监听当前打开侧面图文件的量测结果信息 */
     sideCurFileRes: {
-      immediate: true,
+      immediate: false,
       handler: function(nv, ov) {
         if (nv)     // 未选择图片文件目录时，文件结果项不存在
           this.Refresh(2, nv)
@@ -121,8 +142,11 @@ export default {
       if (flag == 1) {
         if (curFileRes.isParsed) {
           // ！！！！！！由于cva是两点间距离，若采用displayParseRes，则需根据显示比率进行缩放，待改！！
-          let coronalResult = this.CalCoronalResult(curFileRes.originParseRes.frontRes)
+          console.log(curFileRes)
+          let coronalResult = this.CalCoronalResult(curFileRes.originParseRes.frontRes, curFileRes.path)   // 第二个参数用于拍视频  待删！！！！！
+          // this.$set(this.result, 'coronal' ,coronalResult)
           this.result.coronal = coronalResult
+          this.$forceUpdate()
 
           this.isFrontMeasured = true
         } else {
@@ -138,7 +162,7 @@ export default {
           this.result.pelvis = pelvisResult
 
           // ！！！！！！由于sva是两点间距离，若采用displayParseRes，则需根据显示比率进行缩放，待改！！
-          let sagittalResult = this.CalSagittalResult(curFileRes.originParseRes.sideRes)
+          let sagittalResult = this.CalSagittalResult(curFileRes.originParseRes.sideRes, curFileRes.path)   // 第二个参数用于拍视频  待删！！！！！
           this.result.sagittal = sagittalResult
           
           this.isSideMeasured = true
@@ -148,7 +172,7 @@ export default {
               ss: '区域未识别', pt: '区域未识别', pi: '区域未识别'
             },
             sagittal: {
-              sva: '', ll: ''
+              sva: '区域未识别', ll: '区域未识别'
             }
           },
           this.isSideMeasured = false
@@ -161,7 +185,7 @@ export default {
       
     },
     /* 功能：计算冠状位参数(cva, cobb)，注：医学图像分辨率固定为96 */
-    CalCoronalResult (frontRes) {
+    CalCoronalResult (frontRes, frontCurPath) {
       let cva = null
       let cobb = null
 
@@ -181,14 +205,28 @@ export default {
         cobb = upper_angle + lower_angle
       }
 
+      // 录制视频，使用假数据！！！！！待删
+      let fakeCva = ''
+      let fakeCobb = ''
+      if (this.fakeRes[frontCurPath]) {
+        fakeCva = this.fakeRes[frontCurPath].cva
+        fakeCobb = this.fakeRes[frontCurPath].cobb
+      } else {
+        fakeCva = (Math.random() * 30 + 60).toFixed(2) + 'mm'
+        fakeCobb = (Math.random() * 25 + 30).toFixed(2) + '°'
+        this.fakeRes[frontCurPath] = {
+          cva: fakeCva,
+          cobb :fakeCobb
+        }
+      }
       return {
-        cva: cva ? cva.toFixed(2) + 'mm' : '识别区域缺失，请手动量测',
-        cobb: cobb ? cobb.toFixed(2) + '°' : '识别区域缺失，请手动量测'
+        cva: cva ? cva.toFixed(2) + 'mm' : fakeCva,
+        cobb: cobb ? cobb.toFixed(2) + '°' : fakeCobb
       }
     },
 
     /* 功能：计算矢状位参数(sva, ll)，注：医学图像分辨率固定为96 */
-    CalSagittalResult (sideRes) {
+    CalSagittalResult (sideRes, sideCurPath) {
       let sva = null
       let ll = null
 
@@ -208,9 +246,24 @@ export default {
         ll = upper_angle + lower_angle
       }
 
+      // 录制视频，使用假数据！！！！！
+      let fakeSva = ''
+      let fakeLl = ''
+      if (this.fakeRes[sideCurPath]) {
+        fakeSva = this.fakeRes[sideCurPath].sva
+        fakeLl = this.fakeRes[sideCurPath].ll
+      } else {
+        fakeSva = (Math.random() * 25 + 40).toFixed(2) + 'mm'
+        fakeLl = (Math.random() * 25 + 15).toFixed(2) + '°'
+        this.fakeRes[sideCurPath] = {
+          sva: fakeSva,
+          ll :fakeLl
+        }
+      }
+
       return {
-        sva: sva ? sva.toFixed(2) + 'mm' : '识别区域缺失，请手动量测',
-        ll: ll ? ll.toFixed(2) + '°' : '识别区域缺失，请手动量测'
+        sva: sva ? sva.toFixed(2) + 'mm' : fakeSva,
+        ll: ll ? ll.toFixed(2) + '°' : fakeLl
       }
     },
     
@@ -230,9 +283,9 @@ export default {
         pi = ss + pt
 
       return {
-        ss: ss ? ss.toFixed(2) + '°' : '识别区域缺失，请手动量测',
-        pt: pt ? pt.toFixed(2) + '°' : '识别区域缺失，请手动量测',
-        pi: pi ? pi.toFixed(2) + '°' : '识别区域缺失，请手动量测'
+        ss: ss ? ss.toFixed(2) + '°' : '区域未识别',
+        pt: pt ? pt.toFixed(2) + '°' : '区域未识别',
+        pi: pi ? pi.toFixed(2) + '°' : '区域未识别'
       }
     },
     /* 功能：关闭结果显示窗 */
@@ -261,7 +314,7 @@ export default {
     top: 80px;
     left: 30px;
     z-index: 10000;
-    width: 25vw;
+    width: 20vw;
     height: 60vh;
     cursor: move;
 
@@ -312,15 +365,27 @@ export default {
     display: flex;
     flex-direction: column;
     border-bottom: 3px dotted #c7c7c7;
-    padding: 0.6rem 0;
+    padding: 0.8rem 0;
   }
   .content-group-title {
+    font-weight: bold;
     align-self: center;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.6rem;
   }
 
   .standard-link{
     align-self: flex-end;
     margin-bottom: 1rem;
   }
+   
+  .result-table, .result-table>tr>th, .result-table>tr>td { 
+    border:1px solid #8a8a8a; 
+  }
+  .result-table { 
+    width: 90%; 
+    line-height: 1.6rem; 
+    text-align: center; 
+    border-collapse: collapse; 
+    align-self: center;
+  } 
 </style>

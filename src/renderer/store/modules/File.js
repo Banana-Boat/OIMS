@@ -94,7 +94,7 @@ const actions = {
     } else {
       context.commit('ChangeCurFilename', {
         flag: payload.flag,
-        curFilename: ''
+        curFilename: null
       })
     }
   },

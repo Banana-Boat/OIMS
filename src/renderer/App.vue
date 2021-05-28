@@ -5,9 +5,14 @@
 </template>
 
 <script>
-  export default {
-    name: 'oims'
+import { ipcRenderer } from "electron"
+
+export default {
+  name: 'oims',
+  created() {
+    ipcRenderer.send("close-loading-window")
   }
+}
 </script>
 
 <style>

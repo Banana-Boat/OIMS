@@ -34,19 +34,19 @@
       <div class="tool-group">
         <div class="slider-box">
           <div style="display:flex;"><i class="slider-icon flaticon-daylight"></i>亮度</div>
-          <el-slider v-model="brightnessValue" style="padding:0 0.5rem;"></el-slider>
+          <el-slider v-model="sliderData.brightnessValue" style="padding:0 0.5rem;"></el-slider>
         </div>
         <div class="slider-box">
           <div style="display:flex;"><i class="slider-icon flaticon-brightness-1"></i>对比度</div>
-          <el-slider v-model="contrastValue" style="padding:0 0.5rem;"></el-slider>
+          <el-slider v-model="sliderData.contrastValue" style="padding:0 0.5rem;"></el-slider>
         </div>
         <div class="slider-box">
           <div style="display:flex;"><i class="slider-icon flaticon-brightness"></i>锐化</div>
-          <el-slider v-model="sharpenValue" style="padding:0 0.5rem;"></el-slider>
+          <el-slider v-model="sliderData.sharpenValue" style="padding:0 0.5rem;"></el-slider>
         </div>
         <div class="slider-box">
           <div style="display:flex;"><i class="slider-icon flaticon-coloring-tool"></i>平滑</div>
-          <el-slider v-model="smoothValue" style="padding:0 0.5rem;"></el-slider>
+          <el-slider v-model="sliderData.smoothValue" style="padding:0 0.5rem;"></el-slider>
         </div>
       </div>
     </div>
@@ -67,16 +67,47 @@ export default {
   },
   data() {
     return {
-      brightnessValue: 43,
-      contrastValue: 67,
-      sharpenValue: 22,
-      smoothValue: 88
+      sliderData: {
+        brightnessValue: 0,
+        contrastValue: 0,
+        sharpenValue: 0,
+        smoothValue: 0
+      }
     }
   },
   computed: {
+    curSelectedFile() {
+      let selectedImgBox =  this.$store.state.File.selectedImgBox
+      let params = selectedImgBox === 1 ? this.$store.state.File.params1 : this.$store.state.File.params2
+      console.log(params.curFilename)
+      return params.curFilename
+    },
     isShowResultBox () { //是否显示结果面板
       return this.$store.state.File.isShowResultBox
     }
+  },
+  watch: {
+    /* 功能：监听当前选中的图片的 */
+    curSelectedFile: {
+      immediate: true,
+      handler: function(nv, ov) {
+        if (nv) {
+          this.sliderData = {
+            brightnessValue: Number.parseInt(Math.random() * 40 + 30) ,
+            contrastValue: Number.parseInt(Math.random() * 40 + 30),
+            sharpenValue: Number.parseInt(Math.random() * 40 + 30),
+            smoothValue: Number.parseInt(Math.random() * 40 + 30)
+          }
+        } else {
+          this.sliderData = {
+            brightnessValue: 0,
+            contrastValue: 0,
+            sharpenValue: 0,
+            smoothValue: 0
+          }
+        }
+      }
+    },
   },
   methods: {
     ShowResultBox () {

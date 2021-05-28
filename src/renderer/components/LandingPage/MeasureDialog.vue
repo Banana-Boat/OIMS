@@ -33,10 +33,12 @@
     </div>
     <div slot="footer">
       <div class="progress-btn-box">
-        <div v-if="curPreprocessType != 0" style="width: 100%; padding: 0 1.5rem;">
+        <!-- <div v-if="curPreprocessType != 0" style="width: 100%; padding: 0 1.5rem;">
           <el-progress :percentage="prePercentage"></el-progress>
           <span style="font-size: 0.9rem; margin-right: 0.4rem"><span  v-if="curPreprocessType == 1">正面图</span><span v-else>侧面图</span>预处理...</span>
-        </div>
+        </div> -->
+        <el-progress v-if="isPreprocessing" style="width:90%;" :percentage="prePercentage"></el-progress>
+
         <el-button type="primary" @click="Measure" :loading="isPreprocessing" style="margin-right:2%"><span v-if="isPreprocessing">处理中</span><span v-else>量测</span></el-button>
       </div>
     </div>
@@ -211,16 +213,34 @@ export default {
       that.$refs.sideTable.selection.forEach(item => {
         fileList.side[item.filename.split('/').pop()] = params2.preprocessDirPath + item.filename
       })
-      that.$emit('StartMeasure', fileList)
-      that.$notify.info({
-        title: '消息',
-        message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
-        duration: 3500,
-        position: 'bottom-left'
-      })
 
-      that.isPreprocessing = false
-      that.Close()
+      that.prePercentage = 0
+
+      let i = 0
+      let tid
+      function Add(){
+        clearTimeout(tid)
+        that.prePercentage += 10
+        i++
+        if (i < 10){
+          tid = setTimeout(Add, 250)
+        } else {
+          that.$emit('StartMeasure', fileList)
+          that.$notify.info({
+            title: '消息',
+            message: '正在量测中，请保持网络通畅。预计所需时间为5-10分钟',
+            duration: 3500,
+            position: 'bottom-left'
+          })
+
+          that.isPreprocessing = false
+          that.Close()
+        }
+      }
+
+      tid = setTimeout(Add,200)
+
+      
       // !!!!!!!!!!!!!!!!!!!!
       
 
