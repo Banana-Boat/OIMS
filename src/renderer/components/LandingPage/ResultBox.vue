@@ -1,7 +1,7 @@
 <template>
   <div v-draggable class="result-box" v-if="isShowResultBox">
     <div class="header-box">
-      <span class="header-text">量测结果</span>
+      <span class="header-text">Measurement Results</span>
       <i class="fa fa-close close-icon" @click="CloseResultBox"></i>
     </div>
     <div class="content-box">
@@ -9,7 +9,7 @@
       <div>
         <div class="front-content-box"  v-if="isFrontMeasured">
           <div class="content-group">
-            <span class="content-group-title">冠状位参数</span>
+            <span class="content-group-title">Coronal Parameter</span>
             <table class="result-table">
               <tr>
                 <td><span>cva</span></td>
@@ -25,7 +25,7 @@
 
         <div class="side-content-box"  v-if="isSideMeasured">
           <div class="content-group">
-            <span class="content-group-title">矢状位参数</span>
+            <span class="content-group-title">Sagittal Parameter</span>
             <table class="result-table">
               <tr>
                 <td><span>sva</span></td>
@@ -38,7 +38,7 @@
             </table>
           </div>
           <div class="content-group">
-            <span class="content-group-title">骨盆参数</span>
+            <span class="content-group-title">Pelvis Parameter</span>
             <table class="result-table">
               <tr>
                 <td><span>ss</span></td>
@@ -58,7 +58,7 @@
       </div>
 
       <div class="standard-link">
-        <el-link type="primary" @click="ShowStandard">分型标准</el-link>
+        <el-link type="primary" @click="ShowStandard">Classification Standard</el-link>
       </div>
       <el-dialog :visible="isShowStandardDialog" @close="CloseStandardDialog" width="40%" :append-to-body="true">
         <div slot="title">

@@ -2,7 +2,7 @@
   <div class="file-list-area-content" ref="areaHeight">
     <el-card class="file-list-box">
       <div class="file-list-header" slot="header">
-        <span class="file-list-title">正面图</span>
+        <span class="file-list-title">Front Image</span>
         <i ref="frontRefreshBtn" @click="Refresh(1)"
           :class="['fa', 'fa-refresh', 'file-list-refresh', isFrontRefreshing?'fa-spin':'']"></i>
       </div>
@@ -26,7 +26,7 @@
     </el-card>
     <el-card class="file-list-box">
       <div class="file-list-header" slot="header">
-        <span class="file-list-title">侧面图</span>
+        <span class="file-list-title">Side Image</span>
         <i ref="sideRefreshBtn" @click="Refresh(2)"
           :class="['fa', 'fa-refresh', 'file-list-refresh', isSideRefreshing?'fa-spin':'']"></i>
       </div>

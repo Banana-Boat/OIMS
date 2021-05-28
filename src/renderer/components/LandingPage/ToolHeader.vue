@@ -2,28 +2,28 @@
   <div class="tool-header-content">
     <div id="menuBtn" class="tool-btn" @click="isShowDrawer = true">
       <i class="fa fa-bars"></i>
-      <span>菜单</span>
+      <span>Menu</span>
     </div>
     <div class="tool-btn-center-group">
       <el-tooltip content="选择正面图文件夹" placement="bottom-start" :open-delay=700>
         <div class="tool-btn"  @click="SelectDir(1)">
             <i class="fa fa-folder-open"></i>
-            <span>正面</span>
+            <span>Front</span>
         </div>
       </el-tooltip>
       <el-tooltip content="选择侧面图文件夹" placement="bottom-start" :open-delay=700>
         <div class="tool-btn"  @click="SelectDir(2)">
           <i class="fa fa-folder-open"></i>
-          <span>侧面</span>
+          <span>Side</span>
         </div>
       </el-tooltip>
       <div class="tool-btn" @click="isShowDialog = true">
         <i class="fa fa-play"></i>
-        <span>量测</span>
+        <span>Measure</span>
       </div>
       <div class="tool-btn" @click="Print">
         <i class="fa fa-print"></i>
-        <span>打印</span>
+        <span>Print</span>
       </div>
     </div>
     <div class="measure-state-box" :style="{'visibility':isMeasuring?'visible':'hidden'}">

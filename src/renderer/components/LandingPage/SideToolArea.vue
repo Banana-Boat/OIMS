@@ -1,10 +1,10 @@
 <template>
   <el-card class="side-tool-area-content">
     <div slot="header">
-      <span class="side-tool-area-title">操作面板</span>
+      <span class="side-tool-area-title">Operation Panel</span>
     </div>
     <div class="tool-box">
-      <el-button round @click="ShowResultBox" style="margin:0.6rem 0.8rem 1.2rem 0.8rem"><span v-if="!isShowResultBox">显示结果</span><span v-else>收起浮窗</span></el-button>
+      <el-button round @click="ShowResultBox" style="margin:0.6rem 0.8rem 1.2rem 0.8rem"><span v-if="!isShowResultBox">Show Results</span><span v-else>Hide Results</span></el-button>
       <result-box :isShowResultBox="isShowResultBox" @CloseResultBox="CloseResultBox"></result-box>
       
       <div class="tool-group">
@@ -33,19 +33,19 @@
       
       <div class="tool-group">
         <div class="slider-box">
-          <div style="display:flex;"><i class="slider-icon flaticon-daylight"></i>亮度</div>
+          <div style="display:flex;"><i class="slider-icon flaticon-daylight"></i>Brightness</div>
           <el-slider v-model="sliderData.brightnessValue" style="padding:0 0.5rem;"></el-slider>
         </div>
         <div class="slider-box">
-          <div style="display:flex;"><i class="slider-icon flaticon-brightness-1"></i>对比度</div>
+          <div style="display:flex;"><i class="slider-icon flaticon-brightness-1"></i>Contrast</div>
           <el-slider v-model="sliderData.contrastValue" style="padding:0 0.5rem;"></el-slider>
         </div>
         <div class="slider-box">
-          <div style="display:flex;"><i class="slider-icon flaticon-brightness"></i>锐化</div>
+          <div style="display:flex;"><i class="slider-icon flaticon-brightness"></i>Sharpen</div>
           <el-slider v-model="sliderData.sharpenValue" style="padding:0 0.5rem;"></el-slider>
         </div>
         <div class="slider-box">
-          <div style="display:flex;"><i class="slider-icon flaticon-coloring-tool"></i>平滑</div>
+          <div style="display:flex;"><i class="slider-icon flaticon-coloring-tool"></i>Smoothness</div>
           <el-slider v-model="sliderData.smoothValue" style="padding:0 0.5rem;"></el-slider>
         </div>
       </div>
